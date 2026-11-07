@@ -2,6 +2,41 @@
 
 **Is your website copy beige?** A free website first-impressions checker that turns curious business owners into copywriting leads.
 
+## 🚀 Put it online (no coding needed, about 15 minutes)
+
+You'll set up three free accounts, copy a few codes, then press one button.
+
+### Step 1: Get your AI key (this powers the reports)
+1. Go to **console.anthropic.com** and sign up.
+2. Add a little credit under **Billing**. Each check costs a few cents. Set a **monthly limit** while you're there so there are no surprises.
+3. Go to **API Keys**, click **Create Key**, and copy it somewhere safe (it starts with `sk-ant-`).
+
+### Step 2: Get enquiries sent to your inbox
+1. Go to **formspree.io** and sign up (free).
+2. Click **New Form**, give it a name like "Beige-o-Meter", and enter the email address enquiries should go to.
+3. Copy the form's link. It looks like `https://formspree.io/f/abcd1234`.
+
+### Step 3: Press the button
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/corners74/beige-checker)
+
+1. Sign up to Render using **"Sign in with GitHub"**, and allow it to see this project.
+2. Render will ask for a few details. Paste in:
+   - **ANTHROPIC_API_KEY**: your key from Step 1
+   - **COPYWRITER_NAME**: your name, as visitors should see it
+   - **CONTACT_EMAIL**: your email address
+   - **LEAD_WEBHOOK_URL**: your Formspree link from Step 2
+   - **BOOKING_URL**: your Calendly/TidyCal link (or leave blank)
+   - **COPYWRITER_WEBSITE**: your website address (or leave blank)
+3. Click **Apply** / **Deploy** and wait a few minutes.
+4. Render shows your app's web address (something like `beige-o-meter.onrender.com`). That's your live app. 🎉
+
+**Good to know**
+- On Render's free plan, the app falls asleep when nobody has used it for a while, so the first visit after a quiet spell takes about a minute to load. Upgrading to the cheapest paid plan (about US$7/month) keeps it awake.
+- To use your own address (like `beige.yourbusiness.co.nz`), see **Settings → Custom Domains** in Render.
+- Need to change a detail later? In Render, open your app → **Environment**, edit the value, and save. It restarts by itself.
+
+---
+
 A visitor enters their homepage URL and answers four quick questions about their audience. The app reads the page and tells them:
 
 - **Their beige rating** on a paint-chip scale: *Hospital Magnolia → Corporate Oatmeal → Polite Greige → Warm Toast → Paprika → Electric Tangerine*
@@ -19,7 +54,7 @@ A visitor enters their homepage URL and answers four quick questions about their
 2. **Measure** (`lib/heuristics.js`): rule-based checks for beige and AI-sounding phrases ("unlock your potential", "seamless", "tailored solutions"…), vague promises, filler words, jargon, repeated phrases, we-vs-you ratio, reading ease, sentence length, weak button text and missing specifics.
 3. **Review** (`lib/review.js`): Claude reads the page, the measurements and the owner's answers, and returns the structured report. It quotes the page exactly and uses `[placeholders]` instead of inventing facts. If there's no API key, or the AI call fails, the app falls back to a rule-based report, so it never breaks.
 
-## Run it locally
+## For developers: run it locally
 
 Needs Node.js 20 or newer.
 

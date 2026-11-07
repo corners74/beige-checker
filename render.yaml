@@ -1,0 +1,24 @@
+# One-click setup for Render (https://render.com). Used by the "Deploy to Render" button in README.md.
+services:
+  - type: web
+    name: beige-o-meter
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/config
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: COPYWRITER_NAME
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false
+      - key: LEAD_WEBHOOK_URL
+        sync: false
+      - key: BOOKING_URL
+        sync: false
+      - key: COPYWRITER_WEBSITE
+        sync: false
+      - key: NODE_VERSION
+        value: "22"

@@ -130,8 +130,9 @@ app.post('/api/lead', async (req, res) => {
       const text = `New Beige-o-Meter lead: ${lead.name} <${lead.email}> | ${lead.url} | score ${lead.beigeScore} (${lead.swatch})\n${lead.message}`;
       await fetch(process.env.LEAD_WEBHOOK_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...lead, text }),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        // _subject is used by Formspree for the email subject line; other services ignore it.
+        body: JSON.stringify({ ...lead, text, _subject: `New Beige-o-Meter enquiry from ${lead.name}` }),
         signal: AbortSignal.timeout(8000),
       });
     } catch (err) {
@@ -154,5 +155,8 @@ app.get('/api/leads', async (req, res) => {
 });
 
 app.listen(PORT, () => {
+  if (!process.env.LEAD_WEBHOOK_URL) {
+    console.warn('[lead] LEAD_WEBHOOK_URL is not set: enquiries are only saved to a local file, which some hosts wipe on restart.');
+  }
   console.log(`${SITE_CONFIG.appName} running at http://localhost:${PORT} (AI review ${aiAvailable() ? 'ON' : 'OFF - rule-based only'})`);
 });
