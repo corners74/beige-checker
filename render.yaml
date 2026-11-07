@@ -10,15 +10,7 @@ services:
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
-      - key: COPYWRITER_NAME
-        sync: false
-      - key: CONTACT_EMAIL
-        sync: false
       - key: LEAD_WEBHOOK_URL
-        sync: false
-      - key: BOOKING_URL
-        sync: false
-      - key: COPYWRITER_WEBSITE
         sync: false
       - key: NODE_VERSION
         value: "22"

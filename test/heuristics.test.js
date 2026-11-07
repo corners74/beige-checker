@@ -52,3 +52,39 @@ test('blocks private addresses and bad URLs', () => {
   assert.throws(() => normaliseUrl('intranet'));
   assert.throws(() => normaliseUrl('https://user:pw@example.com'));
 });
+
+import { trustSignals, searchChecks, CREDENTIAL_RE } from '../lib/heuristics.js';
+import { ruleBasedReport, finaliseReport, splitServices } from '../lib/ruleReport.js';
+
+test('credentials do not count against customer focus', () => {
+  const html = `<html><head><title>Copywriter in Kerikeri | Words</title></head><body><h1>Website copy that wins you work</h1>
+  <p>I have a BSc (Hons) and a Postgraduate Diploma in Marketing, and I have 30 years of experience in marketing.</p>
+  <p>I founded my business in 2006 and I have worked with hundreds of service businesses since then.</p>
+  <p>You get copy that sounds like you, brings your services to life, and helps your customers choose you over the rest.</p>
+  <p>You'll know exactly what your website needs, and you can stop worrying about what to write.</p></body></html>`;
+  const a = analyseCopy(extractContent(html, 'https://example.co.nz'));
+  assert.ok(CREDENTIAL_RE.test('I have 30 years of experience in marketing.'));
+  assert.equal(a.focus.we, 0, 'credential sentences excluded from the we-count');
+  assert.equal(a.trust.signals.credentials, true);
+});
+
+test('trust signals and search checks', () => {
+  const t = trustSignals('Rated 5 stars by 120 clients. Call 09 123 4567. Based in Auckland. Fully insured.', '', {});
+  assert.equal(t.signals.contact, true);
+  assert.equal(t.signals.guarantee, true);
+  const c = extractContent(SHARP_HTML, 'https://tradie.example');
+  const s = searchChecks(c, 80);
+  assert.ok(s.checks.find((x) => x.label === 'One main heading (H1)').ok);
+  assert.ok(!s.checks.find((x) => x.label === 'Enough words to rank').ok);
+  assert.equal(searchChecks(contentFromPastedText('Hello there'), 10), null);
+});
+
+test('rule report handles several services and pasted copy', () => {
+  assert.deepEqual(splitServices('Plumbing, Blocked drains\nGas fitting'), ['Plumbing', 'Blocked drains', 'Gas fitting']);
+  const content = contentFromPastedText('Your local plumber\nWe fix leaks, clear blocked drains and do gas work across Tauranga for homeowners and landlords.\nGet a quote');
+  const findings = analyseCopy(content);
+  const r = finaliseReport(ruleBasedReport(content, findings, { services: 'Plumbing, Blocked drains, Gas fitting' }), findings, content, 'rules', null);
+  assert.equal(r.customerNeedsToKnow.services.length, 3);
+  assert.equal(r.scores.searchBasics.score, null);
+  assert.equal(typeof r.scores.trust.score, 'number');
+});

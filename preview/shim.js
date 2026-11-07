@@ -4,7 +4,8 @@
 import { contentFromPastedText } from '../lib/pasted.js';
 import { analyseCopy } from '../lib/heuristics.js';
 import { ruleBasedReport, finaliseReport } from '../lib/ruleReport.js';
-import { SYSTEM_PROMPT, REPORT_JSON_SCHEMA, buildUserMessage } from '../lib/reviewPrompt.js';
+import { SYSTEM_PROMPT, REPORT_JSON_SCHEMA, SCORE_KEYS, buildUserMessage } from '../lib/reviewPrompt.js';
+import SITE from '../content/site.json';
 
 const SAMPLE_COPY = `Welcome to Acme Solutions
 Unlock your potential with our innovative solutions.
@@ -16,15 +17,15 @@ Learn more`;
 
 const SAMPLE_ANSWERS = {
   customer: 'owners of small accounting firms',
+  services: 'Client onboarding software\nPractice management consulting\nStaff training',
   problem: 'onboarding new clients takes weeks of back-and-forth emails',
   action: 'book a 20-minute demo',
   different: 'set up in one afternoon, by people who used to run a practice',
 };
 
 const PREVIEW_CONFIG = {
-  appName: 'Beige-o-Meter',
-  copywriterName: 'Your Copywriter',
-  offer: 'a free 15-minute homepage teardown call',
+  ...SITE,
+  enquiry: { ...SITE.enquiry, success: 'This is a preview, so no message was sent. In the live app, this enquiry goes straight to your inbox.' },
   aiEnabled: true,
 };
 
@@ -43,7 +44,7 @@ const str = (v) => (typeof v === 'string' ? v : '');
 /** Light run-time check of Claude's JSON, since sample.json does not validate. */
 function looksLikeReport(r) {
   return isObj(r) && str(r.fiveSecondTake) && isObj(r.customerNeedsToKnow) && Array.isArray(r.customerNeedsToKnow.points)
-    && isObj(r.scores) && ['clarity', 'valueProposition', 'callsToAction', 'customerFocus'].every((k) => isObj(r.scores[k]))
+    && isObj(r.scores) && SCORE_KEYS.every((k) => isObj(r.scores[k]))
     && Array.isArray(r.flagged) && Array.isArray(r.improvements) && r.improvements.length > 0 && typeof r.beigeScore === 'number';
 }
 
@@ -70,7 +71,7 @@ async function check(body) {
   if (pasted.length < 200) {
     return [422, { error: 'Paste a bit more of your homepage copy (a few paragraphs) to run the check.', code: 'too_little_text' }];
   }
-  const audience = { customer: str(body.customer), problem: str(body.problem), action: str(body.action), different: str(body.different) };
+  const audience = { customer: str(body.customer), services: str(body.services), problem: str(body.problem), action: str(body.action), different: str(body.different) };
   const content = contentFromPastedText(pasted, '');
   const findings = analyseCopy(content);
   if (findings.wordCount < 40) {
@@ -120,7 +121,6 @@ function setUpPreviewPage() {
   q('#paste-wrap').after(actions);
 
   q('#print-btn').hidden = true;
-  q('#lead-success').textContent = "This is a preview, so no message was sent. In the live app, this enquiry goes straight to your inbox.";
 
   const ribbon = document.createElement('p');
   ribbon.className = 'preview-ribbon';

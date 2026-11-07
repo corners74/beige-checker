@@ -1,5 +1,6 @@
 import express from 'express';
 import fs from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fetchPage, contentFromPastedText, FetchError, normaliseUrl } from './lib/fetchPage.js';
@@ -11,17 +12,8 @@ const PORT = Number(process.env.PORT) || 3000;
 const LEADS_FILE = process.env.LEADS_FILE || path.join(here, 'data', 'leads.jsonl');
 const CHECKS_PER_HOUR = Number(process.env.CHECKS_PER_HOUR) || 6;
 
-// Everything the front end shows about you lives here, set by environment variables.
-const SITE_CONFIG = {
-  appName: process.env.APP_NAME || 'Beige-o-Meter',
-  copywriterName: process.env.COPYWRITER_NAME || 'Your Copywriter',
-  businessName: process.env.BUSINESS_NAME || '',
-  websiteUrl: process.env.COPYWRITER_WEBSITE || '',
-  bookingUrl: process.env.BOOKING_URL || '',
-  contactEmail: process.env.CONTACT_EMAIL || '',
-  offer: process.env.OFFER_TEXT || 'a free 15-minute homepage teardown call',
-  photoUrl: process.env.COPYWRITER_PHOTO || '',
-};
+// Everything the front end shows about you (name, bio, services, results) lives in content/site.json.
+const SITE_CONTENT = JSON.parse(readFileSync(path.join(here, 'content', 'site.json'), 'utf8'));
 
 const app = express();
 app.set('trust proxy', 1);
@@ -49,13 +41,14 @@ setInterval(() => {
 const trim = (v, n) => String(v ?? '').trim().slice(0, n);
 
 app.get('/api/config', (_req, res) => {
-  res.json({ ...SITE_CONFIG, aiEnabled: aiAvailable() });
+  res.json({ ...SITE_CONTENT, aiEnabled: aiAvailable() });
 });
 
 app.post('/api/check', async (req, res) => {
   const body = req.body || {};
   const audience = {
     customer: trim(body.customer, 300),
+    services: trim(body.services, 600),
     problem: trim(body.problem, 300),
     action: trim(body.action, 200),
     different: trim(body.different, 300),
@@ -106,7 +99,8 @@ app.post('/api/lead', async (req, res) => {
     at: new Date().toISOString(),
     name: trim(body.name, 120),
     email: trim(body.email, 200),
-    phone: trim(body.phone, 60),
+    website: trim(body.website, 300),
+    services: (Array.isArray(body.services) ? body.services : [body.services]).filter(Boolean).map((x) => trim(x, 80)).slice(0, 8),
     message: trim(body.message, 2000),
     url: trim(body.url, 500),
     beigeScore: Number.isFinite(Number(body.beigeScore)) ? Number(body.beigeScore) : null,
@@ -127,7 +121,7 @@ app.post('/api/lead', async (req, res) => {
   }
   if (process.env.LEAD_WEBHOOK_URL) {
     try {
-      const text = `New Beige-o-Meter lead: ${lead.name} <${lead.email}> | ${lead.url} | score ${lead.beigeScore} (${lead.swatch})\n${lead.message}`;
+      const text = `New Beige-o-Meter enquiry: ${lead.name} <${lead.email}> | ${lead.website || lead.url} | interested in: ${lead.services.join(', ') || '-'} | beige score ${lead.beigeScore} (${lead.swatch})\n${lead.message}\n\nReport: ${lead.summary}`;
       await fetch(process.env.LEAD_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -158,5 +152,5 @@ app.listen(PORT, () => {
   if (!process.env.LEAD_WEBHOOK_URL) {
     console.warn('[lead] LEAD_WEBHOOK_URL is not set: enquiries are only saved to a local file, which some hosts wipe on restart.');
   }
-  console.log(`${SITE_CONFIG.appName} running at http://localhost:${PORT} (AI review ${aiAvailable() ? 'ON' : 'OFF - rule-based only'})`);
+  console.log(`${SITE_CONTENT.appName} running at http://localhost:${PORT} (AI review ${aiAvailable() ? 'ON' : 'OFF - rule-based only'})`);
 });

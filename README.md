@@ -26,11 +26,7 @@ You'll set up three free accounts, copy a few codes, then press one button.
 1. Sign up to Render using **"Sign in with GitHub"**, and allow it to see this project.
 2. Render will ask for a few details. Paste in:
    - **ANTHROPIC_API_KEY**: your key from Step 1
-   - **COPYWRITER_NAME**: your name, as visitors should see it
-   - **CONTACT_EMAIL**: your email address
    - **LEAD_WEBHOOK_URL**: your Formspree link from Step 2
-   - **BOOKING_URL**: your Calendly/TidyCal link (or leave blank)
-   - **COPYWRITER_WEBSITE**: your website address (or leave blank)
 3. Click **Apply** / **Deploy** and wait a few minutes.
 4. Render shows your app's web address (something like `beige-o-meter.onrender.com`). That's your live app. 🎉
 
@@ -50,7 +46,7 @@ A visitor enters their homepage URL and answers four quick questions about their
 - **A scorecard** for clarity, value proposition, calls to action and customer focus
 - **The beige bits:** real quotes from their page flagged as beige, waffle, repetition, vague promise, filler, jargon, complexity or we-focused, each with a suggested rewrite
 
-…followed by a "let's fix it together" pitch and an enquiry form. There's no email list involved: enquiries go straight to you.
+…followed by the Website Health Check as a next step, a "get to know me" section (bio, services, client results, good fit / not a fit) and an optional enquiry form. There's no email list involved: enquiries go straight to you.
 
 ## How it works
 
@@ -70,7 +66,7 @@ npm install
 cp .env.example .env
 ```
 
-Fill in `.env` (at minimum `ANTHROPIC_API_KEY`, `COPYWRITER_NAME` and `BOOKING_URL`), then:
+Fill in `.env` (at minimum `ANTHROPIC_API_KEY`), then:
 
 ```bash
 node --env-file=.env server.js
@@ -94,7 +90,8 @@ Any Node host works: Render, Railway, Fly.io, a small VPS. Set the variables fro
 
 ## Customising
 
-- **Your details and offer:** environment variables (see `.env.example`)
+- **Your details, bio, services, client results and fit lists:** `content/site.json` (edit the wording there; no code changes needed)
+- **Logo and photo:** `public/img/`
 - **Wording, colours and layout:** `public/index.html`, `public/styles.css`
 - **Beige phrase lists:** `BEIGE_PHRASES`, `VAGUE_PROMISES`, `FILLER_WORDS` and `JARGON` in `lib/heuristics.js`
 - **Paint-chip names:** `SWATCHES` in `lib/heuristics.js` (and their colours in `public/app.js`)

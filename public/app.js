@@ -2,9 +2,10 @@ const $ = (sel) => document.querySelector(sel);
 const el = (tag, attrs = {}, ...children) => {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
+    if (v === undefined || v === null || v === false) continue;
     if (k === 'class') node.className = v;
     else if (k === 'style') node.style.cssText = v;
-    else node.setAttribute(k, v);
+    else node.setAttribute(k, v === true ? '' : v);
   }
   for (const child of children.flat()) {
     if (child != null) node.append(child instanceof Node ? child : document.createTextNode(String(child)));
@@ -23,14 +24,24 @@ const SWATCH_COLOURS = {
 };
 const STRIP_ORDER = ['Hospital Magnolia', 'Corporate Oatmeal', 'Polite Greige', 'Warm Toast', 'Paprika', 'Electric Tangerine'];
 
+const SCORE_LABELS = {
+  clarity: 'Clarity',
+  valueProposition: 'Value proposition',
+  callsToAction: 'Calls to action',
+  customerFocus: 'Customer focus',
+  trust: 'Trust & credibility (E-E-A-T)',
+  searchBasics: 'Search basics (SEO)',
+};
+
 const LOADING_LINES = [
   'Reading your homepage…',
   'Squinting at it like a first-time visitor…',
   'Counting how many times you said "seamless"…',
   'Looking for the bit that says what you actually do…',
+  'Checking whether each of your services gets a look-in…',
+  'Looking for reasons to trust you…',
+  'Checking what Google sees…',
   'Hunting for waffle…',
-  'Checking whether you talk about "we" more than "you"…',
-  'Comparing your copy to 1,000 other beige websites…',
   'Writing what your customer actually needs to know…',
   'Mixing paint colours…',
 ];
@@ -39,6 +50,8 @@ let config = {};
 let lastReport = null;
 let lastUrl = '';
 
+const getPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
+
 async function loadConfig() {
   try {
     config = await (await fetch('/api/config')).json();
@@ -46,26 +59,46 @@ async function loadConfig() {
     config = {};
   }
   document.querySelectorAll('[data-config]').forEach((node) => {
-    const value = config[node.dataset.config];
-    if (value) node.textContent = value;
+    const value = getPath(config, node.dataset.config);
+    if (typeof value === 'string' && value) node.textContent = value;
   });
   document.querySelectorAll('[data-config-link]').forEach((node) => {
-    const value = config[node.dataset.configLink];
+    const value = getPath(config, node.dataset.configLink);
     if (value) node.href = value;
-    else node.removeAttribute('href');
   });
-  if (config.bookingUrl) {
-    const link = $('#booking-link');
-    link.href = config.bookingUrl;
-    link.hidden = false;
-  }
-  if (config.contactEmail) {
-    const fe = $('#footer-email');
-    fe.href = `mailto:${config.contactEmail}`;
-    fe.textContent = config.contactEmail;
-    fe.hidden = false;
-  }
   if (config.appName) document.title = `${config.appName} · Is your website copy beige?`;
+  renderAbout();
+}
+
+function renderAbout() {
+  if (config.photo) {
+    const img = $('#about-photo');
+    img.src = config.photo;
+    img.alt = config.copywriterName || '';
+    img.hidden = false;
+  }
+  $('#bio').replaceChildren(...(config.bio || []).map((p) => el('p', {}, p)));
+
+  const services = config.services || [];
+  $('#service-grid').replaceChildren(...services.map((s) => el('a', { class: 'service-card', href: s.url, target: '_blank', rel: 'noopener' },
+    el('strong', {}, s.name),
+    el('span', {}, s.line),
+    el('span', { class: 'more' }, 'Find out more →'),
+  )));
+  $('#service-choices').replaceChildren(...services.map((s, i) => el('label', { class: 'choice' },
+    el('input', { type: 'checkbox', name: 'services', value: s.name, id: `svc-${i}` }),
+    ` ${s.name}`,
+  )));
+
+  $('#results-grid').replaceChildren(...(config.results || []).map((r) => el('figure', { class: 'result-card' },
+    el('p', { class: 'result-headline' }, `“${r.headline}”`),
+    r.quote ? el('blockquote', {}, `“${r.quote}”`) : null,
+    el('figcaption', {}, el('strong', {}, r.name), r.business ? `, ${r.business}` : ''),
+  )));
+
+  $('#good-fit').replaceChildren(...(config.goodFit || []).map((t) => el('li', {}, t)));
+  $('#not-fit').replaceChildren(...(config.notAFit || []).map((t) => el('li', {}, t)));
+  $('#lead-success').textContent = config.enquiry?.success || 'Thanks! Your message is on its way.';
 }
 
 function showError(target, message) {
@@ -110,8 +143,8 @@ $('#check-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = new FormData(e.target);
   const payload = Object.fromEntries(form.entries());
-  if (!payload.customer?.trim() || !payload.problem?.trim()) {
-    showError('#form-error', 'Tell us who your customer is and what you solve for them. It makes the feedback far more useful.');
+  if (!payload.customer?.trim() || !payload.services?.trim()) {
+    showError('#form-error', 'Tell us who your customer is and what services you offer. It makes the feedback far more useful.');
     return;
   }
   showError('#form-error', '');
@@ -136,9 +169,7 @@ $('#check-form').addEventListener('submit', async (e) => {
     if (!res.ok) {
       show('intro');
       goStep(1);
-      if (data.code === 'too_little_text' || data.code === 'http_error' || data.code === 'not_html') {
-        $('#paste-wrap').hidden = false;
-      }
+      if (['too_little_text', 'http_error', 'not_html'].includes(data.code)) $('#paste-wrap').hidden = false;
       showError('#form-error', data.error || 'Something went wrong. Please try again.');
       return;
     }
@@ -160,7 +191,7 @@ function barColour(score) {
 }
 
 function hostOf(url) {
-  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return 'your page'; }
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; }
 }
 
 function renderReport(r) {
@@ -169,12 +200,11 @@ function renderReport(r) {
   $('#swatch-name').textContent = r.swatch.name;
   $('#beige-score').textContent = r.beigeScore;
   $('#swatch-blurb').textContent = r.swatch.blurb;
-  $('#page-host').textContent = r.page.url ? hostOf(r.page.url) : 'your copy';
+  $('#page-host').textContent = hostOf(r.page.url) || 'your copy';
   $('#five-second-take').textContent = r.fiveSecondTake;
   $('#what-they-think').textContent = r.whatTheyThinkYouDo;
 
-  const strip = $('#strip');
-  strip.replaceChildren(...STRIP_ORDER.map((name) => el('span', {
+  $('#strip').replaceChildren(...STRIP_ORDER.map((name) => el('span', {
     class: name === r.swatch.name ? 'on' : '',
     style: `background:${SWATCH_COLOURS[name]}`,
     title: name,
@@ -188,6 +218,9 @@ function renderReport(r) {
   $('#need-headline').textContent = n.headline;
   $('#need-sub').textContent = n.subheadline;
   $('#need-points').replaceChildren(...n.points.map((p) => el('li', {}, p)));
+  const svc = n.services || [];
+  $('#need-services').hidden = !svc.length;
+  $('#need-services').replaceChildren(...svc.map((s) => el('div', { class: 'mock-service' }, el('strong', {}, s.name), el('span', {}, s.line))));
   $('#need-cta').textContent = n.callToAction;
 
   $('#fixes').replaceChildren(...r.improvements.map((f) => el('li', {},
@@ -196,17 +229,24 @@ function renderReport(r) {
     f.example ? el('p', { class: 'example' }, f.example) : null,
   )));
 
-  const labels = { clarity: 'Clarity', valueProposition: 'Value proposition', callsToAction: 'Calls to action', customerFocus: 'Customer focus' };
-  $('#scores').replaceChildren(...Object.entries(labels).map(([key, label]) => {
+  $('#scores').replaceChildren(...Object.entries(SCORE_LABELS).filter(([key]) => r.scores[key]).map(([key, label]) => {
     const s = r.scores[key];
+    const has = typeof s.score === 'number';
     return el('div', { class: 'card score' },
-      el('div', { class: 'score-top' }, el('h3', {}, label), el('b', {}, `${s.score}`)),
-      el('div', { class: 'bar' }, el('i', { style: `width:${s.score}%;background:${barColour(s.score)}` })),
+      el('div', { class: 'score-top' }, el('h3', {}, label), el('b', {}, has ? `${s.score}` : '–')),
+      el('div', { class: 'bar' }, has ? el('i', { style: `width:${s.score}%;background:${barColour(s.score)}` }) : null),
       el('p', {}, s.comment),
     );
   }));
 
-  $('#flags').replaceChildren(...(r.flagged.length ? r.flagged : []).map((f) => el('div', { class: 'card flag' },
+  const checks = r.searchChecks || [];
+  $('#seo-checks').hidden = !checks.length;
+  $('#seo-list').replaceChildren(...checks.map((c) => el('li', { class: c.ok ? 'ok' : 'fail' },
+    el('span', { class: 'mark', 'aria-label': c.ok ? 'Passed' : 'Needs work' }, c.ok ? '✓' : '✗'),
+    el('span', {}, el('strong', {}, c.label), c.ok ? '' : ` ${c.fix}`),
+  )));
+
+  $('#flags').replaceChildren(...r.flagged.map((f) => el('div', { class: 'card flag' },
     el('div', {}, el('blockquote', {}, `“${f.quote}”`), el('span', { class: 'tag' }, f.problem)),
     el('p', {}, f.why),
     el('p', { class: 'instead' }, `Try instead: ${f.tryInstead}`),
@@ -220,24 +260,58 @@ function renderReport(r) {
     `${st.wordCount} words checked`,
     st.readingEase != null ? `Reading ease ${st.readingEase}/100` : null,
     st.averageSentenceLength ? `${st.averageSentenceLength} words per sentence` : null,
-    `"you" ${st.you}× vs "we/I" ${st.we}×`,
     `${st.beigePhrases} beige phrases`,
     `${st.fillerWords} filler words`,
   ].filter(Boolean).map((t) => el('span', {}, t)));
 
-  $('#lead-message').placeholder = `e.g. I'd love help making ${r.page.url ? hostOf(r.page.url) : 'my site'} less ${r.swatch.name}`;
+  if (r.page.url) $('#lead-website').value = r.page.url;
+  $('#copy-fallback').hidden = true;
 }
+
+function reportSummary(r) {
+  const lines = [
+    `My Beige-o-Meter results${r.page.url ? ` for ${r.page.url}` : ''}`,
+    `Beige rating: ${r.swatch.name} (${r.beigeScore}% beige)`,
+    `First impression: ${r.fiveSecondTake}`,
+    '',
+    'Scores:',
+    ...Object.entries(SCORE_LABELS).filter(([k]) => r.scores[k]).map(([k, label]) => `- ${label}: ${typeof r.scores[k].score === 'number' ? `${r.scores[k].score}/100` : 'not checked'}`),
+    '',
+    'Top three fixes:',
+    ...r.improvements.map((f, i) => `${i + 1}. ${f.title}`),
+  ];
+  return lines.join('\n');
+}
+
+$('#copy-report').addEventListener('click', async () => {
+  if (!lastReport) return;
+  const text = reportSummary(lastReport);
+  const hint = $('#copy-hint');
+  try {
+    await navigator.clipboard.writeText(text);
+    hint.textContent = 'Copied! Paste it into your message on my contact page.';
+  } catch {
+    const box = $('#copy-fallback');
+    box.value = text;
+    box.hidden = false;
+    box.focus();
+    box.select();
+    hint.textContent = "Your browser didn't let us copy automatically. The summary is selected below: copy it with Ctrl+C (or Cmd+C).";
+  }
+});
 
 $('#lead-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
-  const data = Object.fromEntries(new FormData(form).entries());
+  const fd = new FormData(form);
+  const data = Object.fromEntries(fd.entries());
+  data.services = fd.getAll('services');
   if (!data.name?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email || '')) {
     showError('#lead-error', 'Please add your name and a valid email address.');
     return;
   }
   if (!data.consent) {
-    showError('#lead-error', 'Please tick the box so I know it\'s OK to get in touch.');
+    showError('#lead-error', "Please tick the box so I know it's OK to get in touch.");
     return;
   }
   showError('#lead-error', '');
@@ -253,12 +327,12 @@ $('#lead-form').addEventListener('submit', async (e) => {
         url: lastReport?.page?.url || lastUrl,
         beigeScore: lastReport?.beigeScore,
         swatch: lastReport?.swatch?.name,
-        summary: lastReport ? `${lastReport.fiveSecondTake} | Fixes: ${lastReport.improvements.map((f) => f.title).join('; ')}` : '',
+        summary: lastReport ? reportSummary(lastReport) : '',
       }),
     });
     const body = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(body.error || 'Something went wrong.');
-    form.querySelectorAll('input, textarea, button').forEach((n) => { n.disabled = true; });
+    if (!res.ok) throw new Error(body.error || 'Something went wrong. Please try again, or use my contact page.');
+    form.querySelectorAll('input, textarea, button').forEach((node) => { node.disabled = true; });
     $('#lead-success').hidden = false;
   } catch (err) {
     showError('#lead-error', err.message);

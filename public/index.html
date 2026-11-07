@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Beige-o-Meter · Is your website copy beige?</title>
-  <meta name="description" content="Free website first-impressions check. Find out if your homepage copy is clear, specific and customer-focused, or just beige." />
+  <meta name="description" content="Free website first-impressions check by Words by Cornelia. Find out if your homepage copy is clear, specific, trustworthy and findable, or just beige." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -14,7 +14,10 @@
 <body>
   <header class="topbar">
     <a class="brand" href="/"><span class="chip" aria-hidden="true"></span><span data-config="appName">Beige-o-Meter</span></a>
-    <span class="byline">by <a data-config-link="websiteUrl" data-config="copywriterName" href="#">Your Copywriter</a></span>
+    <a class="byline" data-config-link="websiteUrl" href="https://wordsbycornelia.com/" target="_blank" rel="noopener">
+      <span>by</span>
+      <img class="logo" src="img/logo.png" alt="Words by Cornelia" width="600" height="93" />
+    </a>
   </header>
 
   <main>
@@ -22,7 +25,7 @@
     <section id="intro" class="hero">
       <p class="eyebrow">Free website first-impressions check</p>
       <h1>Is your website copy <span class="beige-word">beige</span>?</h1>
-      <p class="lede">Bland, generic copy is invisible. Pop in your homepage and we'll tell you what a first-time visitor actually takes away, flag the waffle, and show you what your customer really needs to hear.</p>
+      <p class="lede">Bland, generic copy is invisible. Pop in your homepage and you'll see what a first-time visitor actually takes away, whether your page builds trust and can be found on Google, where the waffle is, and what your customers really need to hear.</p>
 
       <form id="check-form" class="card form" novalidate>
         <div class="step" data-step="1">
@@ -39,18 +42,21 @@
         </div>
 
         <div class="step" data-step="2" hidden>
-          <p class="step-intro">Four quick questions so we can judge your copy against <em>your</em> audience, not just grammar rules.</p>
+          <p class="step-intro">A few quick questions, so your copy is judged against <em>your</em> customers and services, not just grammar rules.</p>
           <label for="customer">Who is your ideal customer?</label>
-          <input id="customer" name="customer" type="text" maxlength="300" placeholder="e.g. busy tradies in Auckland who hate paperwork" />
+          <input id="customer" name="customer" type="text" maxlength="300" placeholder="e.g. homeowners in Tauranga, and small property managers" />
 
-          <label for="problem">What problem do you solve for them?</label>
-          <input id="problem" name="problem" type="text" maxlength="300" placeholder="e.g. they lose evenings to quotes and invoices" />
+          <label for="services">What services do you offer? <span class="optional">(put the one you most want more of first)</span></label>
+          <textarea id="services" name="services" rows="3" maxlength="600" placeholder="e.g. Plumbing repairs, Blocked drains, Gas fitting, Hot water cylinders"></textarea>
+
+          <label for="problem">What do customers most want help with?</label>
+          <input id="problem" name="problem" type="text" maxlength="300" placeholder="e.g. getting a reliable tradie who turns up when they say they will" />
 
           <label for="action">What do you want visitors to do on your homepage?</label>
-          <input id="action" name="action" type="text" maxlength="200" placeholder="e.g. book a free demo" />
+          <input id="action" name="action" type="text" maxlength="200" placeholder="e.g. request a quote" />
 
           <label for="different">What makes you different? <span class="optional">(optional)</span></label>
-          <input id="different" name="different" type="text" maxlength="300" placeholder="e.g. built by an ex-sparky; set up in one afternoon" />
+          <input id="different" name="different" type="text" maxlength="300" placeholder="e.g. family business since 1998; fixed prices, no surprises" />
 
           <div class="form-actions">
             <button type="button" class="link-btn" id="back-step-1">← Back</button>
@@ -61,7 +67,7 @@
       </form>
 
       <ul class="checks">
-        <li>Clarity</li><li>Value proposition</li><li>Calls to action</li><li>Customer focus</li><li>Waffle &amp; filler</li><li>Beige (generic or AI-sounding) copy</li>
+        <li>Clarity</li><li>Value proposition</li><li>Calls to action</li><li>Customer focus</li><li>Trust (E-E-A-T)</li><li>Search basics (SEO)</li><li>Beige &amp; AI-sounding copy</li>
       </ul>
     </section>
 
@@ -100,6 +106,7 @@
           <h2 id="need-headline"></h2>
           <p id="need-sub"></p>
           <ul id="need-points"></ul>
+          <div class="mock-services" id="need-services" hidden></div>
           <span class="mock-btn" id="need-cta"></span>
         </div>
         <p class="muted small">A suggested rewrite of the top of your page. Anything in [brackets] is a fact only you know.</p>
@@ -110,14 +117,20 @@
 
       <div class="cta-band card" id="cta-mid">
         <div>
-          <h3>Want copy that's anything but beige?</h3>
-          <p>These fixes are a start. If you'd rather have a professional rewrite it so it sounds like <em>you</em> and actually brings in enquiries, let's talk.</p>
+          <h3>Want a human to look at it?</h3>
+          <p>This report is automated and looks at one page. If you'd like an expert to go through your whole website by hand, there's a way to do that.</p>
         </div>
-        <a class="btn btn-big" href="#contact">Let's fix it together →</a>
+        <a class="btn btn-big" href="#next-step">Show me →</a>
       </div>
 
       <h2 class="section-title">Your scorecard</h2>
       <div class="scores" id="scores"></div>
+
+      <details class="card seo-checks" id="seo-checks" hidden>
+        <summary>Search basics: what we checked</summary>
+        <ul id="seo-list"></ul>
+        <p class="muted small">This covers the basics on one page. It can't see your Google rankings, backlinks or site speed.</p>
+      </details>
 
       <h2 class="section-title">The beige bits</h2>
       <p class="muted">Real lines from your page, and why they're not pulling their weight.</p>
@@ -130,28 +143,79 @@
 
       <div class="stats" id="stats"></div>
 
-      <!-- LEAD CAPTURE -->
+      <!-- NEXT STEP + GET TO KNOW ME -->
+      <section id="next-step" class="next-step card">
+        <p class="eyebrow" data-config="nextStep.eyebrow">Want a human to look at it?</p>
+        <h2 data-config="nextStep.title">The Website Health Check</h2>
+        <p data-config="nextStep.text"></p>
+        <a class="btn btn-big" data-config-link="nextStep.url" data-config="nextStep.button" target="_blank" rel="noopener" href="#">See what's included</a>
+      </section>
+
+      <section id="about" class="about">
+        <div class="about-intro">
+          <img class="about-photo" id="about-photo" alt="Cornelia Luethi" width="360" height="360" hidden />
+          <div class="about-text">
+            <p class="eyebrow">Get to know me</p>
+            <h2 data-config="bioTitle">Hi, I'm Cornelia</h2>
+            <div id="bio"></div>
+            <p class="credentials" data-config="credentials"></p>
+            <div class="link-row">
+              <a class="btn btn-outline" data-config-link="aboutUrl" target="_blank" rel="noopener" href="#">More about me</a>
+              <a class="btn btn-outline" data-config-link="resultsUrl" target="_blank" rel="noopener" href="#">Client results</a>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub-title">How I can help</h3>
+        <div class="service-grid" id="service-grid"></div>
+        <p class="all-link"><a data-config-link="servicesUrl" target="_blank" rel="noopener" href="#">All copywriting services →</a></p>
+
+        <h3 class="sub-title">What clients say</h3>
+        <div class="results-grid" id="results-grid"></div>
+        <p class="all-link"><a data-config-link="resultsUrl" target="_blank" rel="noopener" href="#">Read more client results →</a></p>
+
+        <div class="fit">
+          <div class="fit-col fit-yes">
+            <h3>We're likely a good fit if…</h3>
+            <ul id="good-fit"></ul>
+          </div>
+          <div class="fit-col fit-no">
+            <h3>I'm probably not your copywriter if…</h3>
+            <ul id="not-fit"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ENQUIRY -->
       <section id="contact" class="contact card">
         <div class="contact-intro">
-          <p class="eyebrow">From beige to brilliant</p>
-          <h2>Let's make your homepage impossible to ignore</h2>
-          <p>Hi, I'm <strong data-config="copywriterName">your copywriter</strong>. I turn bland, generic websites into clear, confident copy that sounds like you and gets people to act. Want <span data-config="offer">a free teardown call</span>? Leave your details and I'll be in touch. No newsletters, no spam, just a reply from a human.</p>
-          <a class="btn btn-outline" id="booking-link" href="#" target="_blank" rel="noopener" hidden>Or book a time straight away →</a>
+          <h2 data-config="enquiry.title">Ready to talk?</h2>
+          <p data-config="enquiry.text"></p>
+          <div class="link-stack">
+            <a class="btn btn-outline" data-config-link="contactUrl" target="_blank" rel="noopener" href="#">Go to my contact page</a>
+            <button class="btn btn-outline" type="button" id="copy-report">Copy my report</button>
+            <p class="muted small" id="copy-hint">Copies a summary of your results, so you can paste it into your message.</p>
+            <textarea id="copy-fallback" class="copy-fallback" rows="6" readonly hidden></textarea>
+          </div>
         </div>
         <form id="lead-form" class="lead-form" novalidate>
           <label for="lead-name">Your name</label>
           <input id="lead-name" name="name" type="text" required autocomplete="name" />
           <label for="lead-email">Email</label>
           <input id="lead-email" name="email" type="email" required autocomplete="email" />
-          <label for="lead-phone">Phone <span class="optional">(optional)</span></label>
-          <input id="lead-phone" name="phone" type="tel" autocomplete="tel" />
-          <label for="lead-message">Anything you'd like me to know? <span class="optional">(optional)</span></label>
-          <textarea id="lead-message" name="message" rows="3" placeholder="e.g. We're relaunching the site in March"></textarea>
+          <label for="lead-website">Your website</label>
+          <input id="lead-website" name="website" type="text" autocomplete="url" />
+          <fieldset class="service-choices">
+            <legend>What are you interested in? <span class="optional">(optional)</span></legend>
+            <div id="service-choices"></div>
+          </fieldset>
+          <label for="lead-message">Tell me a little about your business <span class="optional">(optional)</span></label>
+          <textarea id="lead-message" name="message" rows="3"></textarea>
           <input type="text" name="website_hp" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-          <label class="consent"><input type="checkbox" name="consent" required /> It's OK to contact me about my website copy.</label>
-          <button class="btn btn-big" type="submit">Yes, let's talk</button>
+          <label class="consent"><input type="checkbox" name="consent" required /> It's OK to contact me about my enquiry.</label>
+          <button class="btn btn-big" type="submit">Send my enquiry</button>
           <p class="error" id="lead-error" role="alert" hidden></p>
-          <p class="success" id="lead-success" hidden>Thanks! Your message is in. I'll be in touch within one working day.</p>
+          <p class="success" id="lead-success" hidden></p>
         </form>
       </section>
 
@@ -163,7 +227,8 @@
   </main>
 
   <footer class="footer">
-    <p><span data-config="appName">Beige-o-Meter</span> is a free tool by <a data-config-link="websiteUrl" data-config="copywriterName" href="#">your copywriter</a>. Results are automated suggestions, not gospel. <a id="footer-email" href="#" hidden></a></p>
+    <a data-config-link="websiteUrl" href="https://wordsbycornelia.com/" target="_blank" rel="noopener"><img class="footer-logo" src="img/logo.png" alt="Words by Cornelia" width="600" height="93" /></a>
+    <p><span data-config="appName">Beige-o-Meter</span> is a free tool by <a data-config-link="websiteUrl" data-config="businessName" href="https://wordsbycornelia.com/" target="_blank" rel="noopener">Words by Cornelia</a>. Results are automated suggestions, not gospel.</p>
   </footer>
 
   <script src="app.js" type="module"></script>

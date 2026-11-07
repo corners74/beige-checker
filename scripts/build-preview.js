@@ -21,11 +21,18 @@ const bundle = await build({
   minify: true,
   write: false,
 });
-const js = bundle.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+let js = bundle.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+
+// Images must be embedded: a claude.ai page can't load files from elsewhere.
+const dataUri = async (file, type) => `data:${type};base64,${(await fs.readFile(path.join(root, 'public', file))).toString('base64')}`;
+const IMAGES = { 'img/logo.png': await dataUri('img/logo.png', 'image/png'), 'img/cornelia.webp': await dataUri('img/cornelia.webp', 'image/webp') };
+const embedImages = (text) => Object.entries(IMAGES).reduce((t, [p, uri]) => t.split(p).join(uri), text);
+js = embedImages(js);
 
 const fontLinks = html.match(/<link rel="preconnect"[^>]*>|<link href="https:\/\/fonts\.googleapis\.com[^>]*>/g).join('\n');
-const body = html
-  .slice(html.indexOf('<body>') + '<body>'.length, html.indexOf('</body>'))
+const embedded = embedImages(html);
+const body = embedded
+  .slice(embedded.indexOf('<body>') + '<body>'.length, embedded.indexOf('</body>'))
   .replace(/<script[^>]*src="app\.js"[^>]*><\/script>/, '')
   .trim();
 

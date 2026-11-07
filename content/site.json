@@ -1,0 +1,89 @@
+{
+  "appName": "Beige-o-Meter",
+  "businessName": "Words by Cornelia",
+  "copywriterName": "Cornelia Luethi",
+  "logo": "img/logo.png",
+  "photo": "img/cornelia.webp",
+  "websiteUrl": "https://wordsbycornelia.com/",
+  "contactUrl": "https://wordsbycornelia.com/contact-copywriter/",
+  "aboutUrl": "https://wordsbycornelia.com/about-cornelia-luethi-content-writer/",
+  "resultsUrl": "https://wordsbycornelia.com/best-copywriter-testimonials/",
+  "servicesUrl": "https://wordsbycornelia.com/copywriting-services-nz/",
+
+  "nextStep": {
+    "eyebrow": "Want a human to look at it?",
+    "title": "The Website Health Check",
+    "text": "The Beige-o-Meter is a quick, automated first look at one page. My Website Health Check is the opposite: I go through your website by hand, point by point, across 10 core areas, from SEO and AI visibility to messaging, calls to action and trust. You'll know exactly what's holding your site back, and what to fix first.",
+    "button": "See what's included",
+    "url": "https://wordsbycornelia.com/website-health-check/"
+  },
+
+  "bioTitle": "Hi, I'm Cornelia",
+  "bio": [
+    "I write website content, case studies and articles for service businesses that are brilliant at what they do, but whose words don't yet do them justice.",
+    "I've spent 30 years in marketing, including 10 in corporate life, before founding my own business in 2006. Today I work from Kerikeri in the Bay of Islands, with clients across New Zealand, Australia, the UK and the US.",
+    "A client once called me \"the Swiss watch of marketing\": precise, reliable and on time. I'm polite, but if something won't fly, I'll tell you. Nicely."
+  ],
+  "credentials": "BSc (Hons) Management Studies · Postgraduate Diploma in Marketing (CIM)",
+
+  "services": [
+    {
+      "name": "SEO website copywriting",
+      "line": "Website content that helps the right people find you on Google and AI tools, and convinces them to get in touch.",
+      "url": "https://wordsbycornelia.com/website-content/"
+    },
+    {
+      "name": "Case study writing",
+      "line": "Client success stories that prove what you do, from the briefing and client interview to the finished case study.",
+      "url": "https://wordsbycornelia.com/case-study-writing/"
+    },
+    {
+      "name": "Website Health Check",
+      "line": "A hands-on review of what your website does well, what's holding it back, and what to fix first.",
+      "url": "https://wordsbycornelia.com/website-health-check/"
+    },
+    {
+      "name": "Marketing Compass",
+      "line": "One focused strategy session and a written plan: who you're marketing to, what to say, and where to spend your time.",
+      "url": "https://wordsbycornelia.com/marketing-consultant-nz/"
+    }
+  ],
+
+  "results": [
+    {
+      "headline": "Since working with Cornelia, my bookings have grown from 10% to 80%",
+      "quote": "She created SEO website content that not only reflected my brand perfectly but also made me easier to find online.",
+      "name": "Daniela Alexandra",
+      "business": "Psychic Light, Kerikeri"
+    },
+    {
+      "headline": "182% increase in new users and a 215% increase in page views",
+      "quote": "What I really like about Cornelia's copywriting is that the keywords for SEO (search engine optimisation) are weaved naturally into the copy she writes.",
+      "name": "Michelle Leonard",
+      "business": "LC Designer Homes, Auckland"
+    },
+    {
+      "headline": "We went from zero to hero within a week of going live with the new website",
+      "quote": "We're now getting more enquiries than we have time to deal with.",
+      "name": "Perry Mundell",
+      "business": "DUSTEX, Auckland"
+    }
+  ],
+
+  "goodFit": [
+    "You run a service business, of any size, and you're great at what you do",
+    "You put your heart and soul into your business, and want words that do it justice",
+    "You see quality copy as an investment, not a cost to keep as low as possible",
+    "You'd like someone in your corner who genuinely wants to see you thrive"
+  ],
+  "notAFit": [
+    "You need it done urgently, or on a tight deadline",
+    "You're looking for the cheapest option"
+  ],
+
+  "enquiry": {
+    "title": "Ready to talk?",
+    "text": "Take a look around my website first, so you get a feel for how I work. When you're ready, send me a note here or through my contact page. I'll reply within 1 to 2 working days.",
+    "success": "Thanks! Your message is on its way. I'll reply within 1 to 2 working days."
+  }
+}
