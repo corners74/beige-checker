@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Beige-o-Meter · Is your website copy beige?</title>
+  <meta name="description" content="Free website first-impressions check. Find out if your homepage copy is clear, specific and customer-focused, or just beige." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E8DCC6'/><rect x='6' y='6' width='20' height='20' rx='3' fill='%23FF5A1F'/></svg>" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="chip" aria-hidden="true"></span><span data-config="appName">Beige-o-Meter</span></a>
+    <span class="byline">by <a data-config-link="websiteUrl" data-config="copywriterName" href="#">Your Copywriter</a></span>
+  </header>
+
+  <main>
+    <!-- STEP 1: intro + form -->
+    <section id="intro" class="hero">
+      <p class="eyebrow">Free website first-impressions check</p>
+      <h1>Is your website copy <span class="beige-word">beige</span>?</h1>
+      <p class="lede">Bland, generic copy is invisible. Pop in your homepage and we'll tell you what a first-time visitor actually takes away, flag the waffle, and show you what your customer really needs to hear.</p>
+
+      <form id="check-form" class="card form" novalidate>
+        <div class="step" data-step="1">
+          <label for="url" class="big-label">Your homepage address</label>
+          <div class="url-row">
+            <input id="url" name="url" type="text" inputmode="url" autocomplete="url" placeholder="yourbusiness.co.nz" />
+            <button type="button" class="btn" id="to-step-2">Next →</button>
+          </div>
+          <button type="button" class="link-btn" id="toggle-paste">Site won't load? Paste your copy instead</button>
+          <div id="paste-wrap" hidden>
+            <label for="pastedCopy">Paste your homepage text (headline first)</label>
+            <textarea id="pastedCopy" name="pastedCopy" rows="7" placeholder="Paste everything from your homepage: headline, intro, sections, button text…"></textarea>
+          </div>
+        </div>
+
+        <div class="step" data-step="2" hidden>
+          <p class="step-intro">Four quick questions so we can judge your copy against <em>your</em> audience, not just grammar rules.</p>
+          <label for="customer">Who is your ideal customer?</label>
+          <input id="customer" name="customer" type="text" maxlength="300" placeholder="e.g. busy tradies in Auckland who hate paperwork" />
+
+          <label for="problem">What problem do you solve for them?</label>
+          <input id="problem" name="problem" type="text" maxlength="300" placeholder="e.g. they lose evenings to quotes and invoices" />
+
+          <label for="action">What do you want visitors to do on your homepage?</label>
+          <input id="action" name="action" type="text" maxlength="200" placeholder="e.g. book a free demo" />
+
+          <label for="different">What makes you different? <span class="optional">(optional)</span></label>
+          <input id="different" name="different" type="text" maxlength="300" placeholder="e.g. built by an ex-sparky; set up in one afternoon" />
+
+          <div class="form-actions">
+            <button type="button" class="link-btn" id="back-step-1">← Back</button>
+            <button type="submit" class="btn btn-big">Check my copy</button>
+          </div>
+        </div>
+        <p id="form-error" class="error" role="alert" hidden></p>
+      </form>
+
+      <ul class="checks">
+        <li>Clarity</li><li>Value proposition</li><li>Calls to action</li><li>Customer focus</li><li>Waffle &amp; filler</li><li>Beige (generic or AI-sounding) copy</li>
+      </ul>
+    </section>
+
+    <!-- LOADING -->
+    <section id="loading" class="loading" hidden aria-live="polite">
+      <div class="swatch-stack" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <p id="loading-msg">Reading your homepage…</p>
+      <p class="muted small">This takes about 30–60 seconds.</p>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results" hidden>
+      <div class="result-head">
+        <div class="paint-chip card" id="paint-chip">
+          <div class="paint-colour" id="paint-colour"></div>
+          <div class="paint-label">
+            <span class="muted small">Your beige rating</span>
+            <strong id="swatch-name">Polite Greige</strong>
+            <span class="score-num"><span id="beige-score">50</span>% beige</span>
+          </div>
+        </div>
+        <div class="first-take">
+          <p class="eyebrow">First impression of <span id="page-host"></span></p>
+          <p class="take" id="five-second-take"></p>
+          <p class="swatch-blurb" id="swatch-blurb"></p>
+          <div class="strip" aria-hidden="true" id="strip"></div>
+          <p class="muted small"><strong>What a visitor thinks you do:</strong> <span id="what-they-think"></span></p>
+        </div>
+      </div>
+
+      <p class="notice" id="ai-notice" hidden></p>
+
+      <div class="needs card">
+        <p class="eyebrow">Here's what your customer actually needs to know</p>
+        <div class="mock-hero">
+          <h2 id="need-headline"></h2>
+          <p id="need-sub"></p>
+          <ul id="need-points"></ul>
+          <span class="mock-btn" id="need-cta"></span>
+        </div>
+        <p class="muted small">A suggested rewrite of the top of your page. Anything in [brackets] is a fact only you know.</p>
+      </div>
+
+      <h2 class="section-title">Three things to fix first</h2>
+      <ol class="fixes" id="fixes"></ol>
+
+      <div class="cta-band card" id="cta-mid">
+        <div>
+          <h3>Want copy that's anything but beige?</h3>
+          <p>These fixes are a start. If you'd rather have a professional rewrite it so it sounds like <em>you</em> and actually brings in enquiries, let's talk.</p>
+        </div>
+        <a class="btn btn-big" href="#contact">Let's fix it together →</a>
+      </div>
+
+      <h2 class="section-title">Your scorecard</h2>
+      <div class="scores" id="scores"></div>
+
+      <h2 class="section-title">The beige bits</h2>
+      <p class="muted">Real lines from your page, and why they're not pulling their weight.</p>
+      <div class="flags" id="flags"></div>
+
+      <div class="card doing-well">
+        <p class="eyebrow">What you're doing well</p>
+        <p id="doing-well"></p>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <!-- LEAD CAPTURE -->
+      <section id="contact" class="contact card">
+        <div class="contact-intro">
+          <p class="eyebrow">From beige to brilliant</p>
+          <h2>Let's make your homepage impossible to ignore</h2>
+          <p>Hi, I'm <strong data-config="copywriterName">your copywriter</strong>. I turn bland, generic websites into clear, confident copy that sounds like you and gets people to act. Want <span data-config="offer">a free teardown call</span>? Leave your details and I'll be in touch. No newsletters, no spam, just a reply from a human.</p>
+          <a class="btn btn-outline" id="booking-link" href="#" target="_blank" rel="noopener" hidden>Or book a time straight away →</a>
+        </div>
+        <form id="lead-form" class="lead-form" novalidate>
+          <label for="lead-name">Your name</label>
+          <input id="lead-name" name="name" type="text" required autocomplete="name" />
+          <label for="lead-email">Email</label>
+          <input id="lead-email" name="email" type="email" required autocomplete="email" />
+          <label for="lead-phone">Phone <span class="optional">(optional)</span></label>
+          <input id="lead-phone" name="phone" type="tel" autocomplete="tel" />
+          <label for="lead-message">Anything you'd like me to know? <span class="optional">(optional)</span></label>
+          <textarea id="lead-message" name="message" rows="3" placeholder="e.g. We're relaunching the site in March"></textarea>
+          <input type="text" name="website_hp" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <label class="consent"><input type="checkbox" name="consent" required /> It's OK to contact me about my website copy.</label>
+          <button class="btn btn-big" type="submit">Yes, let's talk</button>
+          <p class="error" id="lead-error" role="alert" hidden></p>
+          <p class="success" id="lead-success" hidden>Thanks! Your message is in. I'll be in touch within one working day.</p>
+        </form>
+      </section>
+
+      <div class="again">
+        <button class="link-btn" id="print-btn" type="button">Save this report as PDF</button>
+        <button class="link-btn" id="again-btn" type="button">Check another page</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><span data-config="appName">Beige-o-Meter</span> is a free tool by <a data-config-link="websiteUrl" data-config="copywriterName" href="#">your copywriter</a>. Results are automated suggestions, not gospel. <a id="footer-email" href="#" hidden></a></p>
+  </footer>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
