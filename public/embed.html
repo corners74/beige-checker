@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Add the Beige-o-Meter to WordPress</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .guide { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+    .guide ol { padding-left: 22px; display: grid; gap: 10px; }
+    .guide pre { white-space: pre-wrap; word-break: break-all; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 13px; max-height: 260px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="guide">
+    <p class="eyebrow">Beige-o-Meter</p>
+    <h1>Add it to a WordPress page</h1>
+    <ol>
+      <li>In WordPress, go to <strong>Pages → Add New</strong>. Give it a title such as "Beige-o-Meter" and, if you like, a short intro paragraph.</li>
+      <li>Click the <strong>+</strong> button to add a block, search for <strong>Custom HTML</strong>, and add it.</li>
+      <li>Click <strong>Copy the code</strong> below, then paste it into the Custom HTML block.</li>
+      <li>Click <strong>Preview</strong> to check it, then <strong>Publish</strong>.</li>
+    </ol>
+    <p><button class="btn" type="button" id="copy">Copy the code</button> <span id="copied" class="success" hidden>Copied!</span></p>
+    <pre id="code"></pre>
+    <p class="muted small">If the tool shows up but has its own scroll bar, your WordPress plan has removed the small script at the end. It still works; it just won't grow to fit the page.</p>
+  </div>
+  <script>
+    const origin = location.origin;
+    const code = `<iframe id="beige-o-meter" src="${origin}/?embed=1" title="Beige-o-Meter: free website copy checker" style="width:100%;height:1400px;border:0;display:block" loading="lazy"></iframe>
+<script>
+(function () {
+  var frame = document.getElementById('beige-o-meter');
+  window.addEventListener('message', function (e) {
+    if (e.origin !== '${origin}' || !e.data || e.data.source !== 'beige-o-meter') return;
+    if (e.data.type === 'height') frame.style.height = e.data.height + 'px';
+    if (e.data.type === 'scroll') {
+      var y = frame.getBoundingClientRect().top + window.pageYOffset + (e.data.offset || 0) - 20;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  });
+})();
+<\/script>`;
+    document.getElementById('code').textContent = code;
+    document.getElementById('copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(code); document.getElementById('copied').hidden = false; }
+      catch { const r = document.createRange(); r.selectNodeContents(document.getElementById('code')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+    });
+  </script>
+</body>
+</html>

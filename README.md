@@ -30,8 +30,14 @@ You'll set up three free accounts, copy a few codes, then press one button.
 3. Click **Apply** / **Deploy** and wait a few minutes.
 4. Render shows your app's web address (something like `beige-o-meter.onrender.com`). That's your live app. 🎉
 
+### Step 4: Put it on your WordPress website
+1. Open your app's address from Step 3 with `/embed.html` on the end, e.g. `https://beige-o-meter.onrender.com/embed.html`.
+2. Follow the four steps on that page: create a WordPress page, add a **Custom HTML** block, paste the code, publish.
+3. The tool now appears inside your WordPress page, in your site's own header and footer. It grows to fit, so there's no second scroll bar.
+4. If you name the page `beige-o-meter` (so it's at `wordsbycornelia.com/beige-o-meter/`), the "Share your rating" links will point to it. If you use a different address, change `toolUrl` in `content/site.json`.
+
 **Good to know**
-- On Render's free plan, the app falls asleep when nobody has used it for a while, so the first visit after a quiet spell takes about a minute to load. Upgrading to the cheapest paid plan (about US$7/month) keeps it awake.
+- **Use the Starter plan (about US$7/month) once it's on your website.** On the free plan, the app falls asleep when nobody has used it for a while, so the first visit after a quiet spell takes about a minute to load. Upgrading to the cheapest paid plan (about US$7/month) keeps it awake.
 - To use your own address (like `beige.yourbusiness.co.nz`), see **Settings → Custom Domains** in Render.
 - Need to change a detail later? In Render, open your app → **Environment**, edit the value, and save. It restarts by itself.
 

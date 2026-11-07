@@ -69,13 +69,13 @@ ${JSON.stringify(REPORT_JSON_SCHEMA)}`;
 async function check(body) {
   const pasted = str(body.pastedCopy).trim();
   if (pasted.length < 200) {
-    return [422, { error: 'Paste a bit more of your homepage copy (a few paragraphs) to run the check.', code: 'too_little_text' }];
+    return [422, { error: 'Paste a bit more of the page’s copy (a few paragraphs) to run the check.', code: 'too_little_text' }];
   }
-  const audience = { customer: str(body.customer), services: str(body.services), problem: str(body.problem), action: str(body.action), different: str(body.different) };
+  const audience = { pageType: str(body.pageType) || 'homepage', customer: str(body.customer), services: str(body.services), problem: str(body.problem), action: str(body.action), different: str(body.different) };
   const content = contentFromPastedText(pasted, '');
-  const findings = analyseCopy(content);
+  const findings = analyseCopy(content, audience);
   if (findings.wordCount < 40) {
-    return [422, { error: 'Paste a bit more of your homepage copy (a few paragraphs) to run the check.', code: 'too_little_text' }];
+    return [422, { error: 'Paste a bit more of the page’s copy (a few paragraphs) to run the check.', code: 'too_little_text' }];
   }
   const ai = await aiReport(content, findings, audience);
   const report = finaliseReport(ai || ruleBasedReport(content, findings, audience), findings, content, ai ? 'ai' : 'rules', null);
@@ -101,7 +101,7 @@ window.fetch = async (input, init = {}) => {
 function setUpPreviewPage() {
   const q = (s) => document.querySelector(s);
   q('.url-row').hidden = true;
-  q('label[for="url"]').textContent = 'Paste your homepage copy';
+  q('label[for="url"]').textContent = 'Paste your page copy';
   q('#toggle-paste').hidden = true;
   q('#paste-wrap').hidden = false;
   q('label[for="pastedCopy"]').textContent = 'In the live app, visitors just type their web address. In this preview, paste the text from a homepage (headline first).';
@@ -123,10 +123,13 @@ function setUpPreviewPage() {
   // claude.ai pages can't open the print window, so the PDF button only works in the live app.
   q('#pdf-btn').hidden = true;
   q('#pdf-hint').textContent = 'In the live app, visitors can save their report as a PDF here.';
+  // Downloads are blocked in claude.ai previews too; the image is still shown.
+  q('#download-image').hidden = true;
+  q('#share-hint').textContent = 'In the live app, visitors can also download this image to add to their post.';
 
   const ribbon = document.createElement('p');
   ribbon.className = 'preview-ribbon';
-  ribbon.textContent = 'Try it with any homepage copy. Nothing you enter is saved.';
+  ribbon.textContent = 'Try it with copy from any homepage or service page. Nothing you enter is saved.';
   q('.topbar').after(ribbon);
 }
 

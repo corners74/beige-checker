@@ -24,19 +24,25 @@
     <section id="intro" class="hero">
       <p class="eyebrow">Free website first-impressions check</p>
       <h1>Is your website copy <span class="beige-word">beige</span>?</h1>
-      <p class="lede">Bland, generic copy is invisible. Pop in your homepage and you'll see what a first-time visitor actually takes away, whether your page builds trust and can be found on Google, where the waffle is, and what your customers really need to hear.</p>
+      <p class="lede">Bland, generic copy is invisible. Pop in your homepage or a service page and you'll see what a first-time visitor actually takes away, whether your page builds trust, whether Google and AI tools like ChatGPT can find and understand it, where the waffle is, and what your customers really need to hear.</p>
 
       <form id="check-form" class="card form" novalidate>
         <div class="step" data-step="1">
-          <label for="url" class="big-label">Your homepage address</label>
+          <label for="url" class="big-label">Your web page address</label>
           <div class="url-row">
             <input id="url" name="url" type="text" inputmode="url" autocomplete="url" placeholder="yourbusiness.co.nz" />
             <button type="button" class="btn" id="to-step-2">Next →</button>
           </div>
+          <fieldset class="page-type">
+            <legend>This page is my…</legend>
+            <label class="choice"><input type="radio" name="pageType" id="pt-home" value="homepage" checked /> Homepage</label>
+            <label class="choice"><input type="radio" name="pageType" id="pt-service" value="service" /> Service page</label>
+            <label class="choice"><input type="radio" name="pageType" id="pt-other" value="other" /> Other page</label>
+          </fieldset>
           <button type="button" class="link-btn" id="toggle-paste">Site won't load? Paste your copy instead</button>
           <div id="paste-wrap" hidden>
-            <label for="pastedCopy">Paste your homepage text (headline first)</label>
-            <textarea id="pastedCopy" name="pastedCopy" rows="7" placeholder="Paste everything from your homepage: headline, intro, sections, button text…"></textarea>
+            <label for="pastedCopy">Paste the page's text (headline first, one heading or paragraph per line)</label>
+            <textarea id="pastedCopy" name="pastedCopy" rows="7" placeholder="Paste everything from the page: headline, intro, section headings, paragraphs, button text…"></textarea>
           </div>
         </div>
 
@@ -45,7 +51,7 @@
           <label for="customer">Who is your ideal customer?</label>
           <input id="customer" name="customer" type="text" maxlength="300" placeholder="e.g. homeowners in Tauranga, and small property managers" />
 
-          <label for="services">What services do you offer? <span class="optional">(put the one you most want more of first)</span></label>
+          <label for="services">What services do you offer? <span class="optional">(put the one you most want more of first, or the one this page is about)</span></label>
           <textarea id="services" name="services" rows="3" maxlength="600" placeholder="e.g. Plumbing repairs, Blocked drains, Gas fitting, Hot water cylinders"></textarea>
 
           <label for="problem">What do customers most want help with?</label>
@@ -66,7 +72,7 @@
       </form>
 
       <ul class="checks">
-        <li>Clarity</li><li>Value proposition</li><li>Calls to action</li><li>Customer focus</li><li>Trust (E-E-A-T)</li><li>Search basics (SEO)</li><li>Beige &amp; AI-sounding copy</li>
+        <li>Clarity</li><li>Value proposition</li><li>Calls to action</li><li>Customer focus</li><li>Trust (E-E-A-T)</li><li>Search basics (SEO)</li><li>AI search readiness</li><li>Beige &amp; AI-sounding copy</li>
       </ul>
     </section>
 
@@ -95,6 +101,7 @@
           <p class="beige-explain">The beige rating measures how generic your <strong>wording</strong> is. It isn't an overall grade: your other results are further down.</p>
           <div class="strip" aria-hidden="true" id="strip"></div>
           <p class="muted small"><strong>What a visitor thinks you do:</strong> <span id="what-they-think"></span></p>
+          <a class="share-jump" href="#share">Share your rating ↓</a>
         </div>
       </div>
 
@@ -143,6 +150,11 @@
         <ul id="seo-list"></ul>
         <p class="muted small">This covers the basics on one page. It can't see your Google rankings, backlinks or site speed.</p>
       </details>
+      <details class="card seo-checks" id="ai-checks" hidden>
+        <summary>AI search readiness: what we checked</summary>
+        <ul id="ai-list"></ul>
+        <p class="muted small">How easily tools like ChatGPT, Google's AI Overviews and Perplexity can understand your page, trust it and quote it when people ask for recommendations.</p>
+      </details>
 
       <h2 class="section-title">The beige bits</h2>
       <p class="muted">Real lines from your page, and why they're not pulling their weight.</p>
@@ -154,6 +166,24 @@
       </div>
 
       <div class="stats" id="stats"></div>
+
+      <!-- SHARE -->
+      <section id="share" class="share card">
+        <div class="share-text">
+          <p class="eyebrow">Share your rating</p>
+          <h2>What colour is your website copy?</h2>
+          <p>Proud of your colour, or brave enough to admit it's a bit beige? Share it and see what colour everyone else gets.</p>
+          <div class="share-buttons">
+            <button class="btn" type="button" id="download-image">Download image</button>
+            <button class="btn btn-outline" type="button" id="copy-post">Copy post text</button>
+            <a class="btn btn-outline" id="share-linkedin" target="_blank" rel="noopener" href="#">Share on LinkedIn</a>
+            <a class="btn btn-outline" id="share-facebook" target="_blank" rel="noopener" href="#">Share on Facebook</a>
+          </div>
+          <p class="muted small" id="share-hint">Tip: download the image, then add it to your post with the copied text.</p>
+          <textarea id="post-fallback" class="copy-fallback" rows="4" readonly hidden></textarea>
+        </div>
+        <img class="share-image" id="share-image" alt="Your Beige-o-Meter rating card" width="1200" height="628" />
+      </section>
 
       <!-- NEXT STEP + GET TO KNOW ME -->
       <section id="next-step" class="next-step card">

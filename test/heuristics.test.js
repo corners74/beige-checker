@@ -88,3 +88,30 @@ test('rule report handles several services and pasted copy', () => {
   assert.equal(r.scores.searchBasics.score, null);
   assert.equal(typeof r.scores.trust.score, 'number');
 });
+
+import { parseRobots } from '../lib/fetchPage.js';
+import { aiReadinessChecks } from '../lib/heuristics.js';
+
+test('robots.txt: AI crawler blocking', () => {
+  assert.deepEqual(parseRobots('User-agent: *\nDisallow: /wp-admin/\n\nUser-agent: GPTBot\nUser-agent: CCBot\nDisallow: /\n'), ['GPTBot']);
+  assert.ok(parseRobots('User-agent: *\nDisallow: /').includes('Googlebot'));
+  assert.deepEqual(parseRobots('User-agent: *\nDisallow:\n'), []);
+});
+
+test('AI readiness checks', () => {
+  const html = `<html><head><script type="application/ld+json">{"@type":"LocalBusiness","name":"X"}</script></head><body>
+  <h1>Plumbing repairs in Tauranga</h1><p>Hi, I'm Dave. We fix leaks fast for Tauranga homeowners, with 25 years on the tools and 1,200 jobs done.</p>
+  <h2>How much does a plumber cost?</h2><p>Call-outs start from $95 and most jobs take under 2 hours to finish properly.</p>
+  <h2>Do you do gas work?</h2><p>Yes, we are certified gasfitters and can help with hobs, hot water and heaters.</p><h2>Areas we serve</h2></body></html>`;
+  const content = extractContent(html, 'https://plumber.example');
+  content.technical.robots = { found: true, blocked: ['GPTBot'] };
+  const a = analyseCopy(content, { services: 'Plumbing repairs, Gas fitting' });
+  const byLabel = Object.fromEntries(a.ai.checks.map((c) => [c.label, c.ok]));
+  assert.equal(byLabel['Says plainly what you do, near the top'], true);
+  assert.equal(byLabel['Answers customer questions'], true);
+  assert.equal(byLabel['Tells AI tools who you are (structured data)'], true);
+  assert.equal(byLabel['AI tools are allowed to read your site'], false);
+  assert.ok(a.issues.some((i) => i.includes('GPTBot')));
+  const pasted = aiReadinessChecks(contentFromPastedText('Hello\nSome words here about things we do for people in town.'), { specifics: { numbers: 0, timeframes: 0 }, trust: { signals: { people: false } } }, {});
+  assert.equal(pasted.partial, true);
+});

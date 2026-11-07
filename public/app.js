@@ -31,7 +31,30 @@ const SCORE_LABELS = {
   customerFocus: 'Customer focus',
   trust: 'Trust & credibility (E-E-A-T)',
   searchBasics: 'Search basics (SEO)',
+  aiReadiness: 'AI search readiness',
 };
+
+// Embedded in another site (e.g. a WordPress page) via <iframe src=".../?embed=1">.
+const EMBEDDED = new URLSearchParams(location.search).has('embed') && window.parent !== window;
+if (EMBEDDED) document.documentElement.classList.add('embedded');
+const tellParent = (msg) => { if (EMBEDDED) window.parent.postMessage({ source: 'beige-o-meter', ...msg }, '*'); };
+if (EMBEDDED && 'ResizeObserver' in window) {
+  let last = 0;
+  new ResizeObserver(() => {
+    const h = Math.ceil(document.body.getBoundingClientRect().height);
+    if (Math.abs(h - last) > 2) { last = h; tellParent({ type: 'height', height: h }); }
+  }).observe(document.body);
+}
+// Inside an auto-height iframe, in-page links must ask the host page to scroll.
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a || !EMBEDDED) return;
+  const target = document.querySelector(a.getAttribute('href'));
+  if (!target) return;
+  e.preventDefault();
+  target.scrollIntoView({ behavior: 'smooth' });
+  tellParent({ type: 'scroll', offset: target.getBoundingClientRect().top + window.scrollY });
+});
 
 const LOADING_LINES = [
   'Reading your homepage…',
@@ -41,6 +64,7 @@ const LOADING_LINES = [
   'Checking whether each of your services gets a look-in…',
   'Looking for reasons to trust you…',
   'Checking what Google sees…',
+  'Asking whether ChatGPT could recommend you…',
   'Hunting for waffle…',
   'Writing what your customer actually needs to know…',
   'Mixing paint colours…',
@@ -110,6 +134,7 @@ function showError(target, message) {
 function show(section) {
   for (const id of ['intro', 'loading', 'results']) $(`#${id}`).hidden = id !== section;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  tellParent({ type: 'scroll', offset: 0 });
 }
 
 function goStep(n) {
@@ -138,6 +163,17 @@ $('#url').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') { e.preventDefault(); $('#to-step-2').click(); }
 });
 $('#back-step-1').addEventListener('click', () => goStep(1));
+
+// Suggest "Service page" when the address goes beyond the homepage.
+$('#url').addEventListener('change', () => {
+  try {
+    const raw = $('#url').value.trim();
+    const u = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    const isHome = u.pathname === '/' || u.pathname === '';
+    if (!isHome && $('#pt-home').checked) $('#pt-service').checked = true;
+    if (isHome && $('#pt-service').checked) $('#pt-home').checked = true;
+  } catch { /* not a full address yet */ }
+});
 
 $('#check-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -253,12 +289,15 @@ function renderReport(r) {
     );
   }));
 
-  const checks = r.searchChecks || [];
-  $('#seo-checks').hidden = !checks.length;
-  $('#seo-list').replaceChildren(...checks.map((c) => el('li', { class: c.ok ? 'ok' : 'fail' },
-    el('span', { class: 'mark', 'aria-label': c.ok ? 'Passed' : 'Needs work' }, c.ok ? '✓' : '✗'),
-    el('span', {}, el('strong', {}, c.label), c.ok ? '' : ` ${c.fix}`),
-  )));
+  const renderChecks = (box, list, checks) => {
+    $(box).hidden = !checks.length;
+    $(list).replaceChildren(...checks.map((c) => el('li', { class: c.ok ? 'ok' : 'fail' },
+      el('span', { class: 'mark', 'aria-label': c.ok ? 'Passed' : 'Needs work' }, c.ok ? '✓' : '✗'),
+      el('span', {}, el('strong', {}, c.label), c.ok ? '' : ` ${c.fix}`),
+    )));
+  };
+  renderChecks('#seo-checks', '#seo-list', r.searchChecks || []);
+  renderChecks('#ai-checks', '#ai-list', r.aiChecks || []);
 
   $('#flags').replaceChildren(...r.flagged.map((f) => el('div', { class: 'card flag' },
     el('div', {}, el('blockquote', {}, `“${f.quote}”`), el('span', { class: 'tag' }, f.problem)),
@@ -279,6 +318,7 @@ function renderReport(r) {
   ].filter(Boolean).map((t) => el('span', {}, t)));
 
   if (r.page.url) $('#lead-website').value = r.page.url;
+  renderShare(r);
 }
 
 function reportSummary(r) {
@@ -296,12 +336,137 @@ function reportSummary(r) {
   return lines.join('\n');
 }
 
+// ---------- Share your rating ----------
+const shareUrl = () => config.toolUrl || config.websiteUrl || location.origin;
+const postText = (r) => `My website copy just got "${r.swatch.name}" (${r.beigeScore}% beige) on the Beige-o-Meter from ${config.businessName || 'Words by Cornelia'}. What colour is yours? ${shareUrl()}`;
+
+function loadImage(src) {
+  return new Promise((resolve) => {
+    if (!src) return resolve(null);
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+/** Draws a 1200×628 rating card (the size LinkedIn and Facebook use for link images). */
+async function drawShareCard(r) {
+  try { await document.fonts.ready; } catch { /* fonts optional */ }
+  const W = 1200;
+  const H = 628;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const g = c.getContext('2d');
+  const ink = '#1f1b16';
+  g.fillStyle = '#efe6d6';
+  g.fillRect(0, 0, W, H);
+
+  // Paint chip
+  const colour = SWATCH_COLOURS[r.swatch.name] || '#e3d6bf';
+  g.fillStyle = '#fffdf8';
+  g.strokeStyle = ink;
+  g.lineWidth = 4;
+  g.beginPath(); g.roundRect(70, 70, 360, 488, 22); g.fill(); g.stroke();
+  g.fillStyle = colour;
+  g.beginPath(); g.roundRect(72, 72, 356, 330, [20, 20, 0, 0]); g.fill();
+  g.fillStyle = ink;
+  g.fillRect(72, 402, 356, 3);
+  g.font = '600 26px Inter, system-ui, sans-serif';
+  g.fillText(`${r.beigeScore}% beige`, 100, 450);
+  g.font = '500 20px Inter, system-ui, sans-serif';
+  g.fillStyle = '#5a5146';
+  g.fillText('Beige-o-Meter paint chart', 100, 490);
+
+  // Text
+  g.fillStyle = '#ff5a1f';
+  g.font = '700 22px Inter, system-ui, sans-serif';
+  g.fillText('MY WEBSITE COPY IS…', 490, 130);
+  g.fillStyle = ink;
+  const name = r.swatch.name;
+  let size = 84;
+  g.font = `900 ${size}px Fraunces, Georgia, serif`;
+  const wordsArr = name.split(' ');
+  const lines = wordsArr.length > 1 ? [wordsArr.slice(0, Math.ceil(wordsArr.length / 2)).join(' '), wordsArr.slice(Math.ceil(wordsArr.length / 2)).join(' ')] : [name];
+  while (lines.some((l) => g.measureText(l).width > 640) && size > 40) { size -= 4; g.font = `900 ${size}px Fraunces, Georgia, serif`; }
+  lines.forEach((l, i) => g.fillText(l, 490, 220 + i * (size + 6)));
+
+  // Paint strip with marker
+  const stripY = 400;
+  STRIP_ORDER.forEach((n, i) => {
+    g.fillStyle = SWATCH_COLOURS[n];
+    g.fillRect(490 + i * 106, stripY, 100, 22);
+    if (n === r.swatch.name) { g.strokeStyle = ink; g.lineWidth = 4; g.strokeRect(487 + i * 106, stripY - 3, 106, 28); }
+  });
+  g.fillStyle = '#5a5146';
+  g.font = '500 18px Inter, system-ui, sans-serif';
+  g.fillText('beige', 490, stripY + 52);
+  g.textAlign = 'right';
+  g.fillText('bold', 1126, stripY + 52);
+  g.textAlign = 'left';
+
+  g.fillStyle = ink;
+  g.font = '700 30px Fraunces, Georgia, serif';
+  g.fillText('What colour is yours?', 490, 520);
+  const logo = await loadImage(config.logo);
+  if (logo) {
+    const lh = 38;
+    const lw = (logo.width / logo.height) * lh;
+    g.drawImage(logo, W - 70 - lw, 535, lw, lh);
+  }
+  return c;
+}
+
+let shareCanvas = null;
+async function renderShare(r) {
+  $('#share-linkedin').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl())}`;
+  $('#share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl())}`;
+  $('#post-fallback').hidden = true;
+  try {
+    shareCanvas = await drawShareCard(r);
+    $('#share-image').src = shareCanvas.toDataURL('image/png');
+  } catch (err) {
+    console.warn('Could not draw share image', err);
+    $('#share-image').hidden = true;
+    $('#download-image').hidden = true;
+  }
+}
+
+$('#download-image').addEventListener('click', () => {
+  if (!shareCanvas || !lastReport) return;
+  shareCanvas.toBlob((blob) => {
+    const a = el('a', { href: URL.createObjectURL(blob), download: `beige-o-meter-${lastReport.swatch.name.toLowerCase().replace(/\s+/g, '-')}.png` });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }, 'image/png');
+});
+
+$('#copy-post').addEventListener('click', async () => {
+  if (!lastReport) return;
+  const text = postText(lastReport);
+  try {
+    await navigator.clipboard.writeText(text);
+    $('#share-hint').textContent = 'Copied! Paste it into your post, and add the image.';
+  } catch {
+    const box = $('#post-fallback');
+    box.value = text;
+    box.hidden = false;
+    box.focus();
+    box.select();
+    $('#share-hint').textContent = 'Copy the text below (Ctrl+C or Cmd+C), then paste it into your post.';
+  }
+});
+
 // PDF: the browser's print window has "Save as PDF". Open the collapsed checklist first so it prints.
 $('#pdf-btn').addEventListener('click', () => {
   $('#seo-checks').open = true;
+  $('#ai-checks').open = true;
   window.print();
 });
-window.addEventListener('beforeprint', () => { $('#seo-checks').open = true; });
+window.addEventListener('beforeprint', () => { $('#seo-checks').open = true; $('#ai-checks').open = true; });
 
 $('#lead-form').addEventListener('submit', async (e) => {
   e.preventDefault();

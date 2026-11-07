@@ -49,6 +49,7 @@ app.post('/api/check', async (req, res) => {
   const audience = {
     customer: trim(body.customer, 300),
     services: trim(body.services, 600),
+    pageType: ['homepage', 'service', 'other'].includes(body.pageType) ? body.pageType : 'homepage',
     problem: trim(body.problem, 300),
     action: trim(body.action, 200),
     different: trim(body.different, 300),
@@ -70,7 +71,7 @@ app.post('/api/check', async (req, res) => {
     }
 
     const content = pasted.length >= 200 ? contentFromPastedText(pasted, url) : await fetchPage(url);
-    const findings = analyseCopy(content);
+    const findings = analyseCopy(content, audience);
 
     if (findings.wordCount < 40) {
       return res.status(422).json({

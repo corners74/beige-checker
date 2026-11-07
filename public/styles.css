@@ -240,6 +240,22 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
 .beige-counts span { background: var(--paper); border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; font-size: 13px; color: var(--ink-2); }
 .no-spam { margin: 10px 0 0; text-align: center; }
 
+/* page type */
+.page-type { border: 0; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+.page-type legend { font-weight: 600; padding: 0; margin-bottom: 4px; width: 100%; }
+
+/* share your rating */
+.share-jump { display: inline-block; margin-top: 4px; font-weight: 600; font-size: 14px; color: var(--accent); }
+.share { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; padding: 24px; margin-top: 36px; }
+.share h2 { font-size: 28px; }
+.share-text p { margin: 0 0 12px; }
+.share-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 12px; }
+.share-image { width: 100%; height: auto; max-width: 100%; border-radius: 10px; border: 1px solid var(--line); }
+
+/* embedded in another site: the host page provides header and footer */
+.embedded .topbar, .embedded .footer { display: none; }
+.embedded main { padding-bottom: 24px; }
+
 .again { display: flex; justify-content: center; gap: 24px; margin-top: 28px; }
 .footer { text-align: center; color: var(--ink-2); font-size: 14px; padding: 24px 16px 40px; }
 
@@ -247,6 +263,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
   .result-head, .contact, .scores, .about-intro, .service-grid, .results-grid, .fit { grid-template-columns: 1fr; }
   .about-photo { width: 160px; }
   .beige-card { grid-template-columns: 1fr; }
+  .share { grid-template-columns: 1fr; }
   .beige-card-chip { min-height: 48px; }
   .byline .logo { height: 26px; }
   .paint-chip { display: grid; grid-template-columns: 110px 1fr; }
@@ -260,7 +277,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
 
 @media print {
   body { background: #fff; }
-  #check-form, .again, .cta-band, .lead-form, .link-stack, .preview-ribbon { display: none !important; }
+  #check-form, .again, .cta-band, .lead-form, .link-stack, .preview-ribbon, .share, .share-jump { display: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .card, .fixes li, .result-card, .service-card, .fit-col, .flag { break-inside: avoid; }
   h2, h3, .section-title, .sub-title { break-after: avoid; page-break-after: avoid; }
