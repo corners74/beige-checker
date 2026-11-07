@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test test/*.test.js",
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "build:preview": "node scripts/build-preview.js"
   },
   "repository": {
     "type": "git",
@@ -28,5 +29,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
   }
 }

@@ -2,6 +2,10 @@
 
 **Is your website copy beige?** A free website first-impressions checker that turns curious business owners into copywriting leads.
 
+## 👀 Just want a look?
+
+Open the preview: https://claude.ai/artifact/AKnKNEGzsBVu7hKHJe3ahb (private to you until you share it). Paste any homepage copy, or click **Try sample copy**. The preview can't fetch websites or send enquiries; everything else works. To rebuild it after changes, run `npm run build:preview`.
+
 ## 🚀 Put it online (no coding needed, about 15 minutes)
 
 You'll set up three free accounts, copy a few codes, then press one button.
