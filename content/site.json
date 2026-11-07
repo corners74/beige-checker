@@ -11,6 +11,13 @@
   "servicesUrl": "https://wordsbycornelia.com/copywriting-services-nz/",
   "toolUrl": "https://wordsbycornelia.com/beige-o-meter/",
 
+  "showPromotion": false,
+  "doneForYou": {
+    "text": "Want it done for you? I write website copy, case studies and articles for service businesses.",
+    "button": "See how I can help →",
+    "url": "https://wordsbycornelia.com/copywriting-services-nz/"
+  },
+
   "nextStep": {
     "eyebrow": "Want a human to look at it?",
     "title": "The Website Health Check",

@@ -12,5 +12,7 @@ services:
         sync: false
       - key: LEAD_WEBHOOK_URL
         sync: false
+      - key: ACCESS_PASSWORD
+        sync: false
       - key: NODE_VERSION
         value: "22"

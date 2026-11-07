@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fetchPage, contentFromPastedText, FetchError, normaliseUrl } from './lib/fetchPage.js';
@@ -40,16 +41,36 @@ setInterval(() => {
 
 const trim = (v, n) => String(v ?? '').trim().slice(0, n);
 
+// Optional password: set ACCESS_PASSWORD on the host to limit who can run checks.
+const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD || '';
+function passwordOk(given) {
+  if (!ACCESS_PASSWORD) return true;
+  const a = createHash('sha256').update(String(given || '')).digest();
+  const b = createHash('sha256').update(ACCESS_PASSWORD).digest();
+  return timingSafeEqual(a, b);
+}
+
 app.get('/api/config', (_req, res) => {
-  res.json({ ...SITE_CONTENT, aiEnabled: aiAvailable() });
+  res.json({ ...SITE_CONTENT, aiEnabled: aiAvailable(), passwordRequired: Boolean(ACCESS_PASSWORD) });
 });
 
 app.post('/api/check', async (req, res) => {
   const body = req.body || {};
+  if (!passwordOk(req.get('x-access-password'))) {
+    if (rateLimited(`pw:${req.ip}`, 10)) return res.status(429).json({ error: 'Too many password attempts. Please try again in an hour.' });
+    return res.status(401).json({ error: "That password isn't right. Check it and try again.", code: 'bad_password' });
+  }
   const audience = {
     customer: trim(body.customer, 300),
     services: trim(body.services, 600),
-    pageType: ['homepage', 'service', 'other'].includes(body.pageType) ? body.pageType : 'homepage',
+    pageType: ['homepage', 'service', 'other', 'draft'].includes(body.pageType) ? body.pageType : 'homepage',
+    businessName: trim(body.businessName, 120),
+    location: trim(body.location, 200),
+    experience: trim(body.experience, 300),
+    proof: trim(body.proof, 800),
+    pricing: trim(body.pricing, 300),
+    process: trim(body.process, 300),
+    tone: trim(body.tone, 160),
     problem: trim(body.problem, 300),
     action: trim(body.action, 200),
     different: trim(body.different, 300),

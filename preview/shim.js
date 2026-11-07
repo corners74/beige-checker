@@ -21,6 +21,9 @@ const SAMPLE_ANSWERS = {
   problem: 'onboarding new clients takes weeks of back-and-forth emails',
   action: 'book a 20-minute demo',
   different: 'set up in one afternoon, by people who used to run a practice',
+  businessName: 'Acme Solutions',
+  location: 'Based in Wellington, working with firms across New Zealand',
+  tone: 'friendly, plain-speaking, no jargon',
 };
 
 const PREVIEW_CONFIG = {
@@ -71,7 +74,8 @@ async function check(body) {
   if (pasted.length < 200) {
     return [422, { error: 'Paste a bit more of the page’s copy (a few paragraphs) to run the check.', code: 'too_little_text' }];
   }
-  const audience = { pageType: str(body.pageType) || 'homepage', customer: str(body.customer), services: str(body.services), problem: str(body.problem), action: str(body.action), different: str(body.different) };
+  const FIELDS = ['customer', 'services', 'problem', 'action', 'different', 'businessName', 'location', 'experience', 'proof', 'pricing', 'process', 'tone'];
+  const audience = { pageType: str(body.pageType) || 'homepage', ...Object.fromEntries(FIELDS.map((k) => [k, str(body[k]).slice(0, 800)])) };
   const content = contentFromPastedText(pasted, '');
   const findings = analyseCopy(content, audience);
   if (findings.wordCount < 40) {
@@ -125,6 +129,7 @@ function setUpPreviewPage() {
   q('#pdf-hint').textContent = 'In the live app, visitors can save their report as a PDF here.';
   // Downloads are blocked in claude.ai previews too; the image is still shown.
   q('#download-image').hidden = true;
+  q('#download-brief').hidden = true;
   q('#share-hint').textContent = 'In the live app, visitors can also download this image to add to their post.';
 
   const ribbon = document.createElement('p');

@@ -73,6 +73,13 @@ const LOADING_LINES = [
 let config = {};
 let lastReport = null;
 let lastUrl = '';
+let lastPayload = {};
+
+const PAGE_TYPES = { homepage: 'Homepage', service: 'Service page', other: 'Other page', draft: 'Draft copy' };
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage blocked */ } },
+};
 
 const getPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
 
@@ -91,6 +98,13 @@ async function loadConfig() {
     if (value) node.href = value;
   });
   if (config.appName) document.title = `${config.appName} · Is your website copy beige?`;
+  // Promotion (bio, services, results, enquiry form) only when switched on in content/site.json.
+  document.querySelectorAll('[data-promo]').forEach((node) => { node.hidden = !config.showPromotion; });
+  $('#done-for-you').hidden = Boolean(config.showPromotion) || !config.doneForYou;
+  if (config.passwordRequired) {
+    $('#password-wrap').hidden = false;
+    $('#accessPassword').value = store.get('bom-password');
+  }
   renderAbout();
 }
 
@@ -150,10 +164,16 @@ $('#toggle-paste').addEventListener('click', () => {
 });
 
 $('#to-step-2').addEventListener('click', () => {
-  const url = $('#url').value.trim();
+  const draft = $('#pt-draft').checked;
+  const url = draft ? '' : $('#url').value.trim();
   const pasted = $('#pastedCopy').value.trim();
+  if (config.passwordRequired && !$('#accessPassword').value.trim()) {
+    showError('#form-error', 'Enter the password to use the Beige-o-Meter.');
+    $('#accessPassword').focus();
+    return;
+  }
   if (!url && pasted.length < 200) {
-    showError('#form-error', pasted ? 'Please paste a bit more of your copy (at least a few paragraphs).' : 'Enter your homepage address to get started.');
+    showError('#form-error', pasted ? 'Please paste a bit more of your copy (at least a few paragraphs).' : draft ? 'Paste your draft to get started.' : 'Enter your web page address to get started.');
     return;
   }
   showError('#form-error', '');
@@ -163,6 +183,28 @@ $('#url').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') { e.preventDefault(); $('#to-step-2').click(); }
 });
 $('#back-step-1').addEventListener('click', () => goStep(1));
+
+// Draft copy has no web address: show the paste box instead.
+function syncDraftMode() {
+  const draft = $('#pt-draft').checked;
+  $('#url-wrap').hidden = draft;
+  $('#toggle-paste').hidden = draft;
+  if (draft) $('#paste-wrap').hidden = false;
+  // The Next button normally sits beside the address box; in draft mode it goes under the paste box.
+  const next = $('#to-step-2');
+  if (draft && !next.closest('#draft-next')) {
+    let holder = $('#draft-next');
+    if (!holder) { holder = el('div', { id: 'draft-next', class: 'draft-next' }); $('#paste-wrap').after(holder); }
+    syncDraftMode.home = next.parentElement; // remember where it lives, so it can go back
+    holder.append(next);
+  } else if (!draft && next.closest('#draft-next')) {
+    (syncDraftMode.home || $('.url-row')).append(next);
+  }
+  $('label[for="pastedCopy"]').textContent = draft
+    ? 'Paste your draft (headline first, one heading or paragraph per line)'
+    : "Paste the page's text (headline first, one heading or paragraph per line)";
+}
+document.querySelectorAll('input[name="pageType"]').forEach((r) => r.addEventListener('change', syncDraftMode));
 
 // Suggest "Service page" when the address goes beyond the homepage.
 $('#url').addEventListener('change', () => {
@@ -179,6 +221,8 @@ $('#check-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = new FormData(e.target);
   const payload = Object.fromEntries(form.entries());
+  if (payload.pageType === 'draft') payload.url = '';
+  lastPayload = payload;
   if (!payload.customer?.trim() || !payload.services?.trim()) {
     showError('#form-error', 'Tell us who your customer is and what services you offer. It makes the feedback far more useful.');
     return;
@@ -198,7 +242,7 @@ $('#check-form').addEventListener('submit', async (e) => {
   try {
     const res = await fetch('/api/check', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Access-Password': $('#accessPassword').value.trim() },
       body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
@@ -206,9 +250,11 @@ $('#check-form').addEventListener('submit', async (e) => {
       show('intro');
       goStep(1);
       if (['too_little_text', 'http_error', 'not_html'].includes(data.code)) $('#paste-wrap').hidden = false;
+      if (data.code === 'bad_password') $('#accessPassword').focus();
       showError('#form-error', data.error || 'Something went wrong. Please try again.');
       return;
     }
+    if (config.passwordRequired) store.set('bom-password', $('#accessPassword').value.trim());
     lastReport = data;
     renderReport(data);
     show('results');
@@ -231,6 +277,14 @@ function hostOf(url) {
 }
 
 function renderReport(r) {
+  const forWhom = lastPayload.businessName || hostOf(r.page.url) || '';
+  const date = new Date().toLocaleDateString('en-NZ', { day: 'numeric', month: 'long', year: 'numeric' });
+  $('#report-meta').textContent = [
+    `${PAGE_TYPES[lastPayload.pageType] || 'Page'} report${forWhom ? ` for ${forWhom}` : ''}`,
+    date,
+    config.businessName ? `Prepared by ${config.businessName}` : '',
+  ].filter(Boolean).join(' · ');
+
   const colour = SWATCH_COLOURS[r.swatch.name] || '#e3d6bf';
   $('#paint-colour').style.background = colour;
   $('#swatch-name').textContent = r.swatch.name;
@@ -318,6 +372,9 @@ function renderReport(r) {
   ].filter(Boolean).map((t) => el('span', {}, t)));
 
   if (r.page.url) $('#lead-website').value = r.page.url;
+  $('#faqs').replaceChildren(...(r.faqs || []).map((f) => el('div', { class: 'faq card' }, el('h3', {}, f.question), el('p', {}, f.answer))));
+  $('#brief-text').textContent = buildBrief(r);
+  $('#brief-copied').hidden = true;
   renderShare(r);
 }
 
@@ -335,6 +392,94 @@ function reportSummary(r) {
   ];
   return lines.join('\n');
 }
+
+// ---------- Brief for a web designer or AI tool ----------
+function buildBrief(r) {
+  const p = lastPayload;
+  const out = [];
+  const line = (t = '') => out.push(t);
+  const heading = (t) => { line(); line(t.toUpperCase()); line('-'.repeat(t.length)); };
+  line(`WEBSITE COPY BRIEF${p.businessName ? `: ${p.businessName}` : ''}`);
+  line(r.page.url ? `Page: ${r.page.url} (${PAGE_TYPES[p.pageType] || 'Page'})` : `Page: ${p.pageType === 'draft' ? 'Draft copy (not published yet)' : `${PAGE_TYPES[p.pageType] || 'Page'} (pasted copy)`}`);
+  line(`Prepared ${new Date().toLocaleDateString('en-NZ', { day: 'numeric', month: 'long', year: 'numeric' })} with the ${config.appName || 'Beige-o-Meter'}${config.businessName ? ` by ${config.businessName}` : ''}`);
+
+  heading('Goal');
+  line(`Make this page clearer, more specific and more trustworthy${p.customer ? ` for ${p.customer}` : ''}${p.action ? `, so more visitors ${p.action.replace(/^to /i, '')}` : ''}.`);
+  if (p.tone) line(`Tone of voice: ${p.tone}.`);
+
+  heading('1. Top priorities');
+  r.improvements.forEach((f, i) => {
+    line(`${i + 1}. ${f.title}`);
+    line(`   ${f.detail}`);
+    if (f.example) line(`   Example: ${f.example}`);
+  });
+
+  const n = r.customerNeedsToKnow;
+  heading('2. New copy for the top of the page');
+  line(`Headline: ${n.headline}`);
+  line(`Subheadline: ${n.subheadline}`);
+  line('Key points:');
+  n.points.forEach((x) => line(`- ${x}`));
+  if (n.services?.length) {
+    line('Service links (one per service, each linking to its page):');
+    n.services.forEach((x) => line(`- ${x.name}: ${x.line}`));
+  }
+  line(`Main button: ${n.callToAction}`);
+
+  if (r.flagged.length) {
+    heading('3. Wording to replace');
+    r.flagged.forEach((f) => {
+      line(`- Replace: "${f.quote}"`);
+      line(`  With: ${f.tryInstead}`);
+      line(`  Why: ${f.why}`);
+    });
+  }
+
+  const seo = (r.searchChecks || []).filter((c) => !c.ok);
+  if (seo.length) {
+    heading('4. Search (SEO) fixes');
+    seo.forEach((c) => line(`- ${c.label}: ${c.fix}`));
+  }
+  const ai = (r.aiChecks || []).filter((c) => !c.ok);
+  if (ai.length) {
+    heading(`${seo.length ? '5' : '4'}. AI search readiness fixes`);
+    ai.forEach((c) => line(`- ${c.label}: ${c.fix}`));
+  }
+
+  if (r.faqs?.length) {
+    heading('FAQ section to add');
+    r.faqs.forEach((f) => { line(`Q: ${f.question}`); line(`A: ${f.answer}`); line(); });
+  }
+
+  heading('Notes');
+  line('- Anything in [square brackets] is a fact to fill in before publishing.');
+  line('- Keep the existing facts accurate: do not add claims, numbers or testimonials that are not true.');
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+$('#copy-brief').addEventListener('click', async () => {
+  const text = $('#brief-text').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    $('#brief-copied').hidden = false;
+  } catch {
+    const range = document.createRange();
+    range.selectNodeContents($('#brief-text'));
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+});
+
+$('#download-brief').addEventListener('click', () => {
+  const blob = new Blob([$('#brief-text').textContent], { type: 'text/plain' });
+  const name = (lastPayload.businessName || hostOf(lastReport?.page?.url) || 'page').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const a = el('a', { href: URL.createObjectURL(blob), download: `copy-brief-${name}.txt` });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+});
 
 // ---------- Share your rating ----------
 const shareUrl = () => config.toolUrl || config.websiteUrl || location.origin;
@@ -504,7 +649,10 @@ $('#lead-form').addEventListener('submit', async (e) => {
 });
 
 $('#again-btn').addEventListener('click', () => {
-  $('#check-form').reset();
+  // Keep the business details and facts so the next page is quick to check.
+  $('#url').value = '';
+  $('#pastedCopy').value = '';
+  syncDraftMode();
   goStep(1);
   show('intro');
 });

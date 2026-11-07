@@ -256,7 +256,37 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
 .embedded .topbar, .embedded .footer { display: none; }
 .embedded main { padding-bottom: 24px; }
 
-.again { display: flex; justify-content: center; gap: 24px; margin-top: 28px; }
+/* password, facts */
+.password-wrap { margin-bottom: 18px; max-width: 320px; }
+.password-wrap label { margin-top: 0; }
+.facts { margin-top: 22px; border: 1px dashed var(--line); border-radius: 12px; padding: 14px 16px; background: var(--paper); }
+.facts summary { cursor: pointer; font-weight: 700; }
+.facts > p { margin: 10px 0 0; }
+
+/* report header line (shows on the PDF too) */
+.draft-next { display: flex; justify-content: flex-end; margin-top: 12px; }
+.report-meta { margin: 0 0 16px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+
+/* FAQ starter */
+.faqs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.faq { padding: 16px 18px; }
+.faq h3 { font-size: 18px; margin-bottom: 6px; }
+.faq p { margin: 0; color: var(--ink-2); }
+
+/* brief */
+.brief { margin-top: 40px; padding: 24px; }
+.brief h2 { font-size: 28px; }
+.brief > p { max-width: 65ch; }
+.brief-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 6px 0 14px; }
+.brief-text { white-space: pre-wrap; word-wrap: break-word; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px; font: 13px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; max-height: 420px; overflow: auto; margin: 0; }
+
+/* light-touch sign-off */
+.done-for-you { margin-top: 36px; padding: 18px 20px; border-top: 2px solid var(--ink); }
+.done-for-you p { margin: 0; font-size: 17px; }
+.done-for-you a { font-weight: 700; color: var(--accent); }
+
+.again { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 24px; margin-top: 28px; }
+#pdf-hint { margin: 0; }
 .footer { text-align: center; color: var(--ink-2); font-size: 14px; padding: 24px 16px 40px; }
 
 @media (max-width: 720px) {
@@ -264,6 +294,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
   .about-photo { width: 160px; }
   .beige-card { grid-template-columns: 1fr; }
   .share { grid-template-columns: 1fr; }
+  .faqs { grid-template-columns: 1fr; }
   .beige-card-chip { min-height: 48px; }
   .byline .logo { height: 26px; }
   .paint-chip { display: grid; grid-template-columns: 110px 1fr; }
@@ -277,7 +308,8 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
 
 @media print {
   body { background: #fff; }
-  #check-form, .again, .cta-band, .lead-form, .link-stack, .preview-ribbon, .share, .share-jump { display: none !important; }
+  #check-form, .again, .cta-band, .lead-form, .link-stack, .preview-ribbon, .share, .share-jump, .brief-buttons { display: none !important; }
+  .brief-text { max-height: none; overflow: visible; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .card, .fixes li, .result-card, .service-card, .fit-col, .flag { break-inside: avoid; }
   h2, h3, .section-title, .sub-title { break-after: avoid; page-break-after: avoid; }

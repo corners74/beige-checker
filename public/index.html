@@ -22,22 +22,29 @@
   <main>
     <!-- STEP 1: intro + form -->
     <section id="intro" class="hero">
-      <p class="eyebrow">Free website first-impressions check</p>
+      <p class="eyebrow">Website copy check</p>
       <h1>Is your website copy <span class="beige-word">beige</span>?</h1>
-      <p class="lede">Bland, generic copy is invisible. Pop in your homepage or a service page and you'll see what a first-time visitor actually takes away, whether your page builds trust, whether Google and AI tools like ChatGPT can find and understand it, where the waffle is, and what your customers really need to hear.</p>
+      <p class="lede">Bland, generic copy is invisible. Pop in your homepage, a service page or a draft and you'll see what a first-time visitor actually takes away, whether your page builds trust, whether Google and AI tools like ChatGPT can find and understand it, where the waffle is, and what your customers really need to hear.</p>
 
       <form id="check-form" class="card form" novalidate>
         <div class="step" data-step="1">
+          <div id="password-wrap" class="password-wrap" hidden>
+            <label for="accessPassword">Password</label>
+            <input id="accessPassword" type="password" autocomplete="current-password" />
+          </div>
+          <div id="url-wrap">
           <label for="url" class="big-label">Your web page address</label>
           <div class="url-row">
             <input id="url" name="url" type="text" inputmode="url" autocomplete="url" placeholder="yourbusiness.co.nz" />
             <button type="button" class="btn" id="to-step-2">Next →</button>
+          </div>
           </div>
           <fieldset class="page-type">
             <legend>This page is my…</legend>
             <label class="choice"><input type="radio" name="pageType" id="pt-home" value="homepage" checked /> Homepage</label>
             <label class="choice"><input type="radio" name="pageType" id="pt-service" value="service" /> Service page</label>
             <label class="choice"><input type="radio" name="pageType" id="pt-other" value="other" /> Other page</label>
+            <label class="choice"><input type="radio" name="pageType" id="pt-draft" value="draft" /> Draft copy (not published yet)</label>
           </fieldset>
           <button type="button" class="link-btn" id="toggle-paste">Site won't load? Paste your copy instead</button>
           <div id="paste-wrap" hidden>
@@ -57,11 +64,30 @@
           <label for="problem">What do customers most want help with?</label>
           <input id="problem" name="problem" type="text" maxlength="300" placeholder="e.g. getting a reliable tradie who turns up when they say they will" />
 
-          <label for="action">What do you want visitors to do on your homepage?</label>
+          <label for="action">What do you want visitors to do on this page?</label>
           <input id="action" name="action" type="text" maxlength="200" placeholder="e.g. request a quote" />
 
           <label for="different">What makes you different? <span class="optional">(optional)</span></label>
           <input id="different" name="different" type="text" maxlength="300" placeholder="e.g. family business since 1998; fixed prices, no surprises" />
+
+          <details class="facts" id="facts">
+            <summary>Add facts for ready-to-use rewrites <span class="optional">(optional, but worth it)</span></summary>
+            <p class="muted small">The more you add, the fewer [brackets] you'll see in the suggested rewrites and FAQ answers. Only what you enter here is used: nothing is made up.</p>
+            <label for="businessName">Business name</label>
+            <input id="businessName" name="businessName" type="text" maxlength="120" placeholder="e.g. Harbour Plumbing" />
+            <label for="location">Where are you based, and which areas do you serve?</label>
+            <input id="location" name="location" type="text" maxlength="200" placeholder="e.g. Based in Tauranga, serving the Bay of Plenty" />
+            <label for="experience">Experience and credentials</label>
+            <input id="experience" name="experience" type="text" maxlength="300" placeholder="e.g. 25 years in the trade; certified gasfitter; Master Plumbers member" />
+            <label for="proof">Results, clients and testimonials</label>
+            <textarea id="proof" name="proof" rows="3" maxlength="800" placeholder="e.g. 1,200+ jobs done; 4.9 stars from 180 Google reviews; 'Turned up on time and fixed it in an hour' – Sue, Mt Maunganui"></textarea>
+            <label for="pricing">How pricing works</label>
+            <input id="pricing" name="pricing" type="text" maxlength="300" placeholder="e.g. Fixed quotes before we start; call-outs from $95 + GST" />
+            <label for="process">What happens when someone gets in touch?</label>
+            <input id="process" name="process" type="text" maxlength="300" placeholder="e.g. We call back within 2 hours and can usually come the same day" />
+            <label for="tone">Tone of voice</label>
+            <input id="tone" name="tone" type="text" maxlength="160" placeholder="e.g. friendly, down-to-earth, a bit of Kiwi humour" />
+          </details>
 
           <div class="form-actions">
             <button type="button" class="link-btn" id="back-step-1">← Back</button>
@@ -85,6 +111,7 @@
 
     <!-- RESULTS -->
     <section id="results" hidden>
+      <p class="report-meta" id="report-meta"></p>
       <div class="result-head">
         <div class="paint-chip card" id="paint-chip">
           <div class="paint-colour" id="paint-colour"></div>
@@ -116,13 +143,13 @@
           <div class="mock-services" id="need-services" hidden></div>
           <span class="mock-btn" id="need-cta"></span>
         </div>
-        <p class="muted small">A suggested rewrite of the top of your page. Anything in [brackets] is a fact only you know.</p>
+        <p class="muted small">A suggested rewrite of the top of your page. Anything in [brackets] is a fact to fill in.</p>
       </div>
 
       <h2 class="section-title">Three things to fix first</h2>
       <ol class="fixes" id="fixes"></ol>
 
-      <div class="cta-band card" id="cta-mid">
+      <div class="cta-band card" id="cta-mid" data-promo>
         <div>
           <h3>Want a human to look at it?</h3>
           <p>This report is automated and looks at one page. If you'd like an expert to go through your whole website by hand, there's a way to do that.</p>
@@ -167,6 +194,24 @@
 
       <div class="stats" id="stats"></div>
 
+      <!-- FAQ STARTER -->
+      <h2 class="section-title">FAQ starter</h2>
+      <p class="muted">Questions your customers are likely asking, with draft answers. Adding an FAQ like this helps visitors decide, and helps AI tools quote you.</p>
+      <div class="faqs" id="faqs"></div>
+
+      <!-- BRIEF -->
+      <section id="brief" class="brief card">
+        <p class="eyebrow">Ready to hand over</p>
+        <h2>Brief for your web designer or AI tool</h2>
+        <p>Everything in this report, turned into clear instructions. Copy it into an email to your web designer, or paste it into ChatGPT or Claude along with your page to get the changes drafted.</p>
+        <div class="brief-buttons">
+          <button class="btn" type="button" id="copy-brief">Copy the brief</button>
+          <button class="btn btn-outline" type="button" id="download-brief">Download as a text file</button>
+          <span class="success" id="brief-copied" hidden>Copied!</span>
+        </div>
+        <pre class="brief-text" id="brief-text" tabindex="0"></pre>
+      </section>
+
       <!-- SHARE -->
       <section id="share" class="share card">
         <div class="share-text">
@@ -186,14 +231,18 @@
       </section>
 
       <!-- NEXT STEP + GET TO KNOW ME -->
-      <section id="next-step" class="next-step card">
+      <section id="done-for-you" class="done-for-you">
+        <p><span data-config="doneForYou.text">Want it done for you? Words by Cornelia writes website copy, case studies and articles for service businesses.</span> <a data-config-link="doneForYou.url" data-config="doneForYou.button" target="_blank" rel="noopener" href="#">See how I can help →</a></p>
+      </section>
+
+      <section id="next-step" class="next-step card" data-promo>
         <p class="eyebrow" data-config="nextStep.eyebrow">Want a human to look at it?</p>
         <h2 data-config="nextStep.title">The Website Health Check</h2>
         <p data-config="nextStep.text"></p>
         <a class="btn btn-big" data-config-link="nextStep.url" data-config="nextStep.button" target="_blank" rel="noopener" href="#">See what's included</a>
       </section>
 
-      <section id="about" class="about">
+      <section id="about" class="about" data-promo>
         <div class="about-intro">
           <img class="about-photo" id="about-photo" alt="Cornelia Luethi" width="360" height="360" hidden />
           <div class="about-text">
@@ -229,14 +278,12 @@
       </section>
 
       <!-- ENQUIRY -->
-      <section id="contact" class="contact card">
+      <section id="contact" class="contact card" data-promo>
         <div class="contact-intro">
           <h2 data-config="enquiry.title">Ready to talk?</h2>
           <p data-config="enquiry.text"></p>
           <div class="link-stack">
             <a class="btn btn-outline" data-config-link="contactUrl" target="_blank" rel="noopener" href="#">Go to my contact page</a>
-            <button class="btn btn-outline" type="button" id="pdf-btn">Save my report as a PDF</button>
-            <p class="muted small" id="pdf-hint">Keep a copy of your results to work through later. In the print window, choose "Save as PDF".</p>
           </div>
         </div>
         <form id="lead-form" class="lead-form" novalidate>
@@ -268,6 +315,8 @@
       </section>
 
       <div class="again">
+        <button class="btn btn-outline" type="button" id="pdf-btn">Save this report as a PDF</button>
+        <p class="muted small" id="pdf-hint">In the print window, choose "Save as PDF".</p>
         <button class="link-btn" id="again-btn" type="button">Check another page</button>
       </div>
     </section>
@@ -275,7 +324,7 @@
 
   <footer class="footer">
     <a data-config-link="websiteUrl" href="https://wordsbycornelia.com/" target="_blank" rel="noopener"><img class="footer-logo" src="img/logo.png" alt="Words by Cornelia" width="600" height="93" /></a>
-    <p><span data-config="appName">Beige-o-Meter</span> is a free tool by <a data-config-link="websiteUrl" data-config="businessName" href="https://wordsbycornelia.com/" target="_blank" rel="noopener">Words by Cornelia</a>. Results are automated suggestions, not gospel.</p>
+    <p>The <span data-config="appName">Beige-o-Meter</span> is by <a data-config-link="websiteUrl" data-config="businessName" href="https://wordsbycornelia.com/" target="_blank" rel="noopener">Words by Cornelia</a>. Results are automated suggestions, not gospel.</p>
   </footer>
 
   <script src="app.js" type="module"></script>

@@ -26,7 +26,8 @@ You'll set up three free accounts, copy a few codes, then press one button.
 1. Sign up to Render using **"Sign in with GitHub"**, and allow it to see this project.
 2. Render will ask for a few details. Paste in:
    - **ANTHROPIC_API_KEY**: your key from Step 1
-   - **LEAD_WEBHOOK_URL**: your Formspree link from Step 2
+   - **LEAD_WEBHOOK_URL**: your Formspree link from Step 2 (only needed if you switch the enquiry form on)
+   - **ACCESS_PASSWORD**: any word or phrase you like. Only people who know it can run checks. Leave it blank to let anyone use the tool.
 3. Click **Apply** / **Deploy** and wait a few minutes.
 4. Render shows your app's web address (something like `beige-o-meter.onrender.com`). That's your live app. 🎉
 
@@ -98,6 +99,7 @@ Any Node host works: Render, Railway, Fly.io, a small VPS. Set the variables fro
 
 - **Your details, bio, services, client results and fit lists:** `content/site.json` (edit the wording there; no code changes needed)
 - **Logo and photo:** `public/img/`
+- **Promotion:** `showPromotion` in `content/site.json`. `false` (the full tool) shows just a light "Want it done for you?" line; `true` shows your bio, services, client results and the enquiry form.
 - **Wording, colours and layout:** `public/index.html`, `public/styles.css`
 - **Beige phrase lists:** `BEIGE_PHRASES`, `VAGUE_PROMISES`, `FILLER_WORDS` and `JARGON` in `lib/heuristics.js`
 - **Paint-chip names:** `SWATCHES` in `lib/heuristics.js` (and their colours in `public/app.js`)

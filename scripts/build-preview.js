@@ -39,6 +39,7 @@ const body = embedded
 const previewCss = `
 .preview-ribbon { max-width: 900px; margin: 0 auto; padding: 0 16px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
 .preview-ribbon::before { content: 'PREVIEW'; display: inline-block; margin-right: 8px; padding: 2px 8px; border-radius: 99px; background: var(--ink); color: var(--paper); font-size: 11px; letter-spacing: 0.08em; }
+#toggle-paste { display: none !important; }
 .preview-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 14px; }
 `;
 

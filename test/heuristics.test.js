@@ -115,3 +115,13 @@ test('AI readiness checks', () => {
   const pasted = aiReadinessChecks(contentFromPastedText('Hello\nSome words here about things we do for people in town.'), { specifics: { numbers: 0, timeframes: 0 }, trust: { signals: { people: false } } }, {});
   assert.equal(pasted.partial, true);
 });
+
+test('rule report uses the owner\'s facts in the FAQ starter', () => {
+  const content = contentFromPastedText('Your local plumber\nWe fix leaks, clear blocked drains and do gas work across Tauranga for homeowners and landlords.\nGet a quote');
+  const findings = analyseCopy(content);
+  const r = ruleBasedReport(content, findings, { services: 'Plumbing', pricing: 'Fixed quotes before we start', businessName: 'Harbour Plumbing' });
+  assert.equal(r.faqs.length, 6);
+  assert.equal(r.faqs[0].answer, 'Fixed quotes before we start');
+  assert.ok(r.faqs[1].answer.startsWith('['));
+  assert.ok(r.faqs.some((f) => f.question.includes('Harbour Plumbing')));
+});
