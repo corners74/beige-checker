@@ -15,7 +15,6 @@
   <header class="topbar">
     <a class="brand" href="/"><span class="chip" aria-hidden="true"></span><span data-config="appName">Beige-o-Meter</span></a>
     <a class="byline" data-config-link="websiteUrl" href="https://wordsbycornelia.com/" target="_blank" rel="noopener">
-      <span>by</span>
       <img class="logo" src="img/logo.png" alt="Words by Cornelia" width="600" height="93" />
     </a>
   </header>
@@ -93,6 +92,7 @@
           <p class="eyebrow">First impression of <span id="page-host"></span></p>
           <p class="take" id="five-second-take"></p>
           <p class="swatch-blurb" id="swatch-blurb"></p>
+          <p class="beige-explain">The beige rating measures how generic your <strong>wording</strong> is. It isn't an overall grade: your other results are further down.</p>
           <div class="strip" aria-hidden="true" id="strip"></div>
           <p class="muted small"><strong>What a visitor thinks you do:</strong> <span id="what-they-think"></span></p>
         </div>
@@ -123,7 +123,19 @@
         <a class="btn btn-big" href="#next-step">Show me →</a>
       </div>
 
-      <h2 class="section-title">Your scorecard</h2>
+      <h2 class="section-title">Your results</h2>
+      <div class="card beige-card" id="beige-card">
+        <div class="beige-card-chip" id="beige-card-chip" aria-hidden="true"></div>
+        <div class="beige-card-body">
+          <div class="score-top"><h3>Beige rating: <span id="beige-card-name"></span></h3><b><span id="beige-card-score"></span>%</b></div>
+          <p>How generic your wording is: whether it could sit on any competitor's website unchanged. Lower is better.</p>
+          <p class="muted small"><strong>How it's worked out:</strong> we look for stock phrases (like "tailored solutions" or "unlock your potential"), vague promises (like "quality service"), filler words, jargon, phrases that sound AI-written, and a lack of specifics such as numbers, names and places. The more of these, the higher the %. With the AI review on, Claude also reads the page as a whole and judges how distinctive it sounds.</p>
+          <div class="beige-counts" id="beige-counts"></div>
+        </div>
+      </div>
+
+      <h3 class="sub-title">Your other results</h3>
+      <p class="muted">Scored out of 100. Higher is better.</p>
       <div class="scores" id="scores"></div>
 
       <details class="card seo-checks" id="seo-checks" hidden>
@@ -193,9 +205,8 @@
           <p data-config="enquiry.text"></p>
           <div class="link-stack">
             <a class="btn btn-outline" data-config-link="contactUrl" target="_blank" rel="noopener" href="#">Go to my contact page</a>
-            <button class="btn btn-outline" type="button" id="copy-report">Copy my report</button>
-            <p class="muted small" id="copy-hint">Copies a summary of your results, so you can paste it into your message.</p>
-            <textarea id="copy-fallback" class="copy-fallback" rows="6" readonly hidden></textarea>
+            <button class="btn btn-outline" type="button" id="pdf-btn">Save my report as a PDF</button>
+            <p class="muted small" id="pdf-hint">Keep a copy of your results to work through later. In the print window, choose "Save as PDF".</p>
           </div>
         </div>
         <form id="lead-form" class="lead-form" novalidate>
@@ -209,18 +220,24 @@
             <legend>What are you interested in? <span class="optional">(optional)</span></legend>
             <div id="service-choices"></div>
           </fieldset>
+          <fieldset class="service-choices">
+            <legend>Are you contacting other copywriters about this project? <span class="optional">(optional)</span></legend>
+            <label class="choice"><input type="radio" name="otherCopywriters" id="oc-1" value="No - I really want Cornelia to work on this" /> No – I really want Cornelia to work on this</label>
+            <label class="choice"><input type="radio" name="otherCopywriters" id="oc-2" value="Yes - I'm looking to see who does the best work" /> Yes – I'm looking to see who does the best work</label>
+            <label class="choice"><input type="radio" name="otherCopywriters" id="oc-3" value="Yes - I'm looking for the cheapest service" /> Yes – I'm looking for the cheapest service</label>
+            <label class="choice"><input type="radio" name="otherCopywriters" id="oc-4" value="Not yet - I'm just exploring for now" /> Not yet – I'm just exploring for now</label>
+          </fieldset>
           <label for="lead-message">Tell me a little about your business <span class="optional">(optional)</span></label>
           <textarea id="lead-message" name="message" rows="3"></textarea>
           <input type="text" name="website_hp" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-          <label class="consent"><input type="checkbox" name="consent" required /> It's OK to contact me about my enquiry.</label>
           <button class="btn btn-big" type="submit">Send my enquiry</button>
+          <p class="muted small no-spam" data-config="enquiry.note">No email list, no newsletter, no spam. Just a reply from me.</p>
           <p class="error" id="lead-error" role="alert" hidden></p>
           <p class="success" id="lead-success" hidden></p>
         </form>
       </section>
 
       <div class="again">
-        <button class="link-btn" id="print-btn" type="button">Save this report as PDF</button>
         <button class="link-btn" id="again-btn" type="button">Check another page</button>
       </div>
     </section>

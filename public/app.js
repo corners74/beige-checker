@@ -210,6 +210,20 @@ function renderReport(r) {
     title: name,
   })));
 
+  $('#beige-card-chip').style.background = colour;
+  $('#beige-card-name').textContent = r.swatch.name;
+  $('#beige-card-score').textContent = r.beigeScore;
+  const b = r.beigeBreakdown || {};
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  $('#beige-counts').replaceChildren(...[
+    plural(b.stockPhrases ?? 0, 'stock phrase', 'stock phrases'),
+    plural(b.vaguePromises ?? 0, 'vague promise', 'vague promises'),
+    plural(b.fillerWords ?? 0, 'filler word', 'filler words'),
+    plural(b.jargon ?? 0, 'jargon word', 'jargon words'),
+    plural(b.repeatedPhrases ?? 0, 'repeated phrase', 'repeated phrases'),
+    `${b.specifics ?? 0} specifics (numbers, timeframes)`,
+  ].map((t) => el('span', {}, t)));
+
   const notice = $('#ai-notice');
   notice.hidden = !r.aiError;
   notice.textContent = r.aiError || '';
@@ -265,7 +279,6 @@ function renderReport(r) {
   ].filter(Boolean).map((t) => el('span', {}, t)));
 
   if (r.page.url) $('#lead-website').value = r.page.url;
-  $('#copy-fallback').hidden = true;
 }
 
 function reportSummary(r) {
@@ -283,22 +296,12 @@ function reportSummary(r) {
   return lines.join('\n');
 }
 
-$('#copy-report').addEventListener('click', async () => {
-  if (!lastReport) return;
-  const text = reportSummary(lastReport);
-  const hint = $('#copy-hint');
-  try {
-    await navigator.clipboard.writeText(text);
-    hint.textContent = 'Copied! Paste it into your message on my contact page.';
-  } catch {
-    const box = $('#copy-fallback');
-    box.value = text;
-    box.hidden = false;
-    box.focus();
-    box.select();
-    hint.textContent = "Your browser didn't let us copy automatically. The summary is selected below: copy it with Ctrl+C (or Cmd+C).";
-  }
+// PDF: the browser's print window has "Save as PDF". Open the collapsed checklist first so it prints.
+$('#pdf-btn').addEventListener('click', () => {
+  $('#seo-checks').open = true;
+  window.print();
 });
+window.addEventListener('beforeprint', () => { $('#seo-checks').open = true; });
 
 $('#lead-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -310,10 +313,6 @@ $('#lead-form').addEventListener('submit', async (e) => {
     showError('#lead-error', 'Please add your name and a valid email address.');
     return;
   }
-  if (!data.consent) {
-    showError('#lead-error', "Please tick the box so I know it's OK to get in touch.");
-    return;
-  }
   showError('#lead-error', '');
   const button = form.querySelector('button[type="submit"]');
   button.disabled = true;
@@ -323,7 +322,6 @@ $('#lead-form').addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...data,
-        consent: true,
         url: lastReport?.page?.url || lastUrl,
         beigeScore: lastReport?.beigeScore,
         swatch: lastReport?.swatch?.name,
@@ -340,7 +338,6 @@ $('#lead-form').addEventListener('submit', async (e) => {
   }
 });
 
-$('#print-btn').addEventListener('click', () => window.print());
 $('#again-btn').addEventListener('click', () => {
   $('#check-form').reset();
   goStep(1);

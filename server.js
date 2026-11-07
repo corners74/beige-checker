@@ -101,12 +101,12 @@ app.post('/api/lead', async (req, res) => {
     email: trim(body.email, 200),
     website: trim(body.website, 300),
     services: (Array.isArray(body.services) ? body.services : [body.services]).filter(Boolean).map((x) => trim(x, 80)).slice(0, 8),
+    otherCopywriters: trim(body.otherCopywriters, 120),
     message: trim(body.message, 2000),
     url: trim(body.url, 500),
     beigeScore: Number.isFinite(Number(body.beigeScore)) ? Number(body.beigeScore) : null,
     swatch: trim(body.swatch, 60),
     summary: trim(body.summary, 1000),
-    consent: Boolean(body.consent),
   };
   if (!lead.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) {
     return res.status(400).json({ error: 'Please add your name and a valid email address.' });
@@ -121,7 +121,7 @@ app.post('/api/lead', async (req, res) => {
   }
   if (process.env.LEAD_WEBHOOK_URL) {
     try {
-      const text = `New Beige-o-Meter enquiry: ${lead.name} <${lead.email}> | ${lead.website || lead.url} | interested in: ${lead.services.join(', ') || '-'} | beige score ${lead.beigeScore} (${lead.swatch})\n${lead.message}\n\nReport: ${lead.summary}`;
+      const text = `New Beige-o-Meter enquiry: ${lead.name} <${lead.email}> | ${lead.website || lead.url} | interested in: ${lead.services.join(', ') || '-'} | other copywriters: ${lead.otherCopywriters || '-'} | beige score ${lead.beigeScore} (${lead.swatch})\n${lead.message}\n\nReport: ${lead.summary}`;
       await fetch(process.env.LEAD_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },

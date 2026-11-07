@@ -120,7 +120,9 @@ function setUpPreviewPage() {
   actions.append(sampleBtn, nextBtn);
   q('#paste-wrap').after(actions);
 
-  q('#print-btn').hidden = true;
+  // claude.ai pages can't open the print window, so the PDF button only works in the live app.
+  q('#pdf-btn').hidden = true;
+  q('#pdf-hint').textContent = 'In the live app, visitors can save their report as a PDF here.';
 
   const ribbon = document.createElement('p');
   ribbon.className = 'preview-ribbon';

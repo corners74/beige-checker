@@ -84,6 +84,7 @@
   "enquiry": {
     "title": "Ready to talk?",
     "text": "Take a look around my website first, so you get a feel for how I work. When you're ready, send me a note here or through my contact page. I'll reply within 1 to 2 working days.",
+    "note": "No email list, no newsletter, no spam. Just a reply from me.",
     "success": "Thanks! Your message is on its way. I'll reply within 1 to 2 working days."
   }
 }
