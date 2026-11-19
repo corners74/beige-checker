@@ -64,6 +64,7 @@ app.post('/api/check', async (req, res) => {
     customer: trim(body.customer, 300),
     services: trim(body.services, 600),
     pageType: ['homepage', 'service', 'other', 'draft'].includes(body.pageType) ? body.pageType : 'homepage',
+    keyword: trim(body.keyword, 100),
     businessName: trim(body.businessName, 120),
     location: trim(body.location, 200),
     experience: trim(body.experience, 300),

@@ -125,3 +125,28 @@ test('rule report uses the owner\'s facts in the FAQ starter', () => {
   assert.ok(r.faqs[1].answer.startsWith('['));
   assert.ok(r.faqs.some((f) => f.question.includes('Harbour Plumbing')));
 });
+
+import { keywordMatch, keywordChecks } from '../lib/heuristics.js';
+
+test('focus keyword: matching, placement and overuse', () => {
+  assert.equal(keywordMatch('SEO website copywriting in NZ', 'SEO copywriting'), 'variant');
+  assert.equal(keywordMatch('Website copywriters NZ', 'website copywriting'), 'variant');
+  assert.equal(keywordMatch('Plumber in Tauranga', 'plumber tauranga'), 'variant');
+  assert.equal(keywordMatch('Need a plumber Tauranga?', 'plumber tauranga'), 'exact');
+  assert.equal(keywordMatch('Words that win work', 'SEO copywriting'), false);
+
+  const html = `<html><head><title>Plumber Tauranga | Harbour Plumbing</title><meta name="description" content="Need a plumber? We cover all of Tauranga."></head><body>
+  <h1>Your local plumber in Tauranga</h1><p>Leaks, blocked drains and hot water, fixed fast by a plumber Tauranga homeowners trust since 1998.</p>
+  <h2>Why choose us</h2><p>Fixed prices, no surprises, and we turn up when we say we will, every single time.</p></body></html>`;
+  const c = extractContent(html, 'https://harbour.example/');
+  const checks = Object.fromEntries(keywordChecks(c, 'plumber Tauranga', 60).map((x) => [x.label, x.ok]));
+  assert.equal(checks['Focus keyword in the main heading (H1)'], true);
+  assert.equal(checks['Focus keyword in the opening paragraph'], true);
+  assert.equal(checks['Focus keyword in the page title'], true);
+  assert.equal(checks['Focus keyword in a subheading'], false);
+
+  const stuffed = contentFromPastedText(`Plumber Tauranga\n${'Plumber Tauranga is here. '.repeat(8)}We are the best plumber Tauranga has seen for years and years.`);
+  const sc = keywordChecks(stuffed, 'plumber Tauranga', 50);
+  assert.equal(sc.find((x) => x.label === 'Focus keyword not overused').ok, false);
+  assert.ok(!sc.some((x) => x.label === 'Focus keyword in the page title'), 'technical keyword checks skipped for pasted copy');
+});

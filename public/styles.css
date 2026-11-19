@@ -265,6 +265,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
 
 /* report header line (shows on the PDF too) */
 .draft-next { display: flex; justify-content: flex-end; margin-top: 12px; }
+.field-hint { margin: 6px 0 0; font-size: 13px; color: var(--ink-2); }
 .report-meta { margin: 0 0 16px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
 
 /* FAQ starter */

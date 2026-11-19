@@ -406,6 +406,10 @@ function buildBrief(r) {
   heading('Goal');
   line(`Make this page clearer, more specific and more trustworthy${p.customer ? ` for ${p.customer}` : ''}${p.action ? `, so more visitors ${p.action.replace(/^to /i, '')}` : ''}.`);
   if (p.tone) line(`Tone of voice: ${p.tone}.`);
+  if (p.keyword) {
+    line(`Focus keyword (SEO): "${p.keyword}"`);
+    line('Use it, or a natural variation, in the main heading (H1), in the first 100 words, in at least one subheading, in the page title and in the meta description. Keep it natural: no keyword stuffing.');
+  }
 
   heading('1. Top priorities');
   r.improvements.forEach((f, i) => {

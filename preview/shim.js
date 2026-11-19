@@ -21,6 +21,7 @@ const SAMPLE_ANSWERS = {
   problem: 'onboarding new clients takes weeks of back-and-forth emails',
   action: 'book a 20-minute demo',
   different: 'set up in one afternoon, by people who used to run a practice',
+  keyword: 'client onboarding software',
   businessName: 'Acme Solutions',
   location: 'Based in Wellington, working with firms across New Zealand',
   tone: 'friendly, plain-speaking, no jargon',
@@ -74,7 +75,7 @@ async function check(body) {
   if (pasted.length < 200) {
     return [422, { error: 'Paste a bit more of the page’s copy (a few paragraphs) to run the check.', code: 'too_little_text' }];
   }
-  const FIELDS = ['customer', 'services', 'problem', 'action', 'different', 'businessName', 'location', 'experience', 'proof', 'pricing', 'process', 'tone'];
+  const FIELDS = ['customer', 'services', 'keyword', 'problem', 'action', 'different', 'businessName', 'location', 'experience', 'proof', 'pricing', 'process', 'tone'];
   const audience = { pageType: str(body.pageType) || 'homepage', ...Object.fromEntries(FIELDS.map((k) => [k, str(body[k]).slice(0, 800)])) };
   const content = contentFromPastedText(pasted, '');
   const findings = analyseCopy(content, audience);
