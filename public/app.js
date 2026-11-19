@@ -372,6 +372,7 @@ function renderReport(r) {
   ].filter(Boolean).map((t) => el('span', {}, t)));
 
   if (r.page.url) $('#lead-website').value = r.page.url;
+  renderMeta(r);
   $('#faqs').replaceChildren(...(r.faqs || []).map((f) => el('div', { class: 'faq card' }, el('h3', {}, f.question), el('p', {}, f.answer))));
   $('#brief-text').textContent = buildBrief(r);
   $('#brief-copied').hidden = true;
@@ -392,6 +393,38 @@ function reportSummary(r) {
   ];
   return lines.join('\n');
 }
+
+// ---------- Suggested page title and meta description ----------
+function renderMeta(r) {
+  const m = r.meta;
+  $('#serp').hidden = !m || !m.title;
+  if (!m || !m.title) return;
+  let site = config.businessName || 'yourbusiness.co.nz';
+  if (r.page.url) {
+    try { const u = new URL(r.page.url); site = `${u.hostname.replace(/^www\./, '')}${u.pathname !== '/' ? ` › ${u.pathname.split('/').filter(Boolean).join(' › ')}` : ''}`; } catch { /* keep default */ }
+  }
+  $('#serp-site').textContent = site;
+  $('#serp-title').textContent = m.title;
+  $('#serp-desc').textContent = m.description;
+  const pill = (ok, text) => el('span', { class: ok ? 'ok' : 'warn' }, `${ok ? '✓' : '✗'} ${text}`);
+  $('#serp-stats').replaceChildren(...[
+    pill(m.titleLength <= 60, `Title: ${m.titleLength}/60 characters`),
+    pill(m.descriptionLength <= 155, `Description: ${m.descriptionLength}/155 characters`),
+    m.keywordInTitleStart === null ? null : pill(m.keywordInTitleStart, 'Title starts with focus keyword'),
+    m.keywordInDescription === null ? null : pill(m.keywordInDescription, 'Focus keyword in description'),
+  ].filter(Boolean));
+  $('#meta-copied').hidden = true;
+}
+
+async function copyText(text, flag) {
+  try {
+    await navigator.clipboard.writeText(text);
+    $(flag).hidden = false;
+    setTimeout(() => { $(flag).hidden = true; }, 2500);
+  } catch { /* clipboard blocked: the text is visible on screen to copy by hand */ }
+}
+$('#copy-meta-title').addEventListener('click', () => copyText(lastReport?.meta?.title || '', '#meta-copied'));
+$('#copy-meta-desc').addEventListener('click', () => copyText(lastReport?.meta?.description || '', '#meta-copied'));
 
 // ---------- Brief for a web designer or AI tool ----------
 function buildBrief(r) {
@@ -429,6 +462,12 @@ function buildBrief(r) {
     n.services.forEach((x) => line(`- ${x.name}: ${x.line}`));
   }
   line(`Main button: ${n.callToAction}`);
+
+  if (r.meta?.title) {
+    heading('Page title and meta description');
+    line(`Meta title (${r.meta.titleLength} characters): ${r.meta.title}`);
+    line(`Meta description (${r.meta.descriptionLength} characters): ${r.meta.description}`);
+  }
 
   if (r.flagged.length) {
     heading('3. Wording to replace');

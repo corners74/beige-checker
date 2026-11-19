@@ -150,3 +150,24 @@ test('focus keyword: matching, placement and overuse', () => {
   assert.equal(sc.find((x) => x.label === 'Focus keyword not overused').ok, false);
   assert.ok(!sc.some((x) => x.label === 'Focus keyword in the page title'), 'technical keyword checks skipped for pasted copy');
 });
+
+import { titleCase, finaliseMeta } from '../lib/meta.js';
+
+test('meta title and description follow the rules', () => {
+  assert.equal(titleCase('seo copywriting nz | words by cornelia'), 'SEO Copywriting NZ | Words by Cornelia');
+  assert.equal(titleCase('plumber tauranga – fast and friendly'), 'Plumber Tauranga – Fast and Friendly');
+  const long = 'x'.repeat(10);
+  const m = finaliseMeta({
+    title: 'Words that win you work, every single time | Words by Cornelia',
+    description: `Clear SEO copywriting for NZ service businesses that are brilliant at what they do. ${long} Book a free briefing call and let's make your website work harder for you every day.`,
+  }, { keyword: 'SEO copywriting', businessName: 'Words by Cornelia' });
+  assert.ok(m.title.startsWith('SEO Copywriting'), m.title);
+  assert.ok(m.titleLength <= 60 && m.title.length === m.titleLength);
+  assert.ok(m.descriptionLength <= 155);
+  assert.equal(m.keywordInTitleStart, true);
+  assert.equal(m.keywordInDescription, true);
+  const none = finaliseMeta({ title: 'hello there', description: 'a short description.' }, {});
+  assert.equal(none.title, 'Hello There');
+  assert.equal(none.description, 'A short description.');
+  assert.equal(none.keywordInTitleStart, null);
+});

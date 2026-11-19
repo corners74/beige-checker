@@ -83,7 +83,7 @@ async function check(body) {
     return [422, { error: 'Paste a bit more of the page’s copy (a few paragraphs) to run the check.', code: 'too_little_text' }];
   }
   const ai = await aiReport(content, findings, audience);
-  const report = finaliseReport(ai || ruleBasedReport(content, findings, audience), findings, content, ai ? 'ai' : 'rules', null);
+  const report = finaliseReport(ai || ruleBasedReport(content, findings, audience), findings, content, ai ? 'ai' : 'rules', null, audience);
   if (!ai) report.aiError = 'This preview could not reach Claude, so the report uses the built-in rule-based checks. The live app gives a fuller, AI-written review.';
   return [200, report];
 }

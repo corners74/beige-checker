@@ -266,6 +266,17 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
 /* report header line (shows on the PDF too) */
 .draft-next { display: flex; justify-content: flex-end; margin-top: 12px; }
 .field-hint { margin: 6px 0 0; font-size: 13px; color: var(--ink-2); }
+/* Google-style search preview (Google's own colours, on a white panel in both themes) */
+.serp { padding: 20px 22px; margin: 0 0 8px; }
+.serp-result { background: #ffffff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; font-family: Arial, Helvetica, sans-serif; max-width: 640px; display: grid; gap: 4px; }
+.serp-site { font-size: 14px; color: #202124; }
+.serp-title { font-size: 20px; line-height: 1.3; color: #1a0dab; }
+.serp-desc { margin: 0; font-size: 14px; line-height: 1.58; color: #4d5156; }
+.serp-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.serp-stats span { border-radius: 99px; padding: 3px 10px; font-size: 13px; border: 1px solid var(--line); background: var(--paper); }
+.serp-stats .ok { color: var(--good); }
+.serp-stats .warn { color: var(--bad); }
+.serp-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; }
 .report-meta { margin: 0 0 16px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
 
 /* FAQ starter */
@@ -309,7 +320,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--ink); }
 
 @media print {
   body { background: #fff; }
-  #check-form, .again, .cta-band, .lead-form, .link-stack, .preview-ribbon, .share, .share-jump, .brief-buttons { display: none !important; }
+  #check-form, .again, .cta-band, .lead-form, .link-stack, .preview-ribbon, .share, .share-jump, .brief-buttons, .serp-buttons { display: none !important; }
   .brief-text { max-height: none; overflow: visible; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .card, .fixes li, .result-card, .service-card, .fit-col, .flag { break-inside: avoid; }
